@@ -1,0 +1,359 @@
+:root {
+  color-scheme: light;
+  font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #18212b;
+  background:
+    radial-gradient(circle at top left, rgba(231, 191, 116, 0.24), transparent 28%),
+    radial-gradient(circle at top right, rgba(84, 118, 151, 0.18), transparent 22%),
+    linear-gradient(180deg, #f7f1e5 0%, #eef1ed 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --panel-bg: rgba(255, 252, 246, 0.86);
+  --panel-border: rgba(59, 75, 93, 0.13);
+  --shadow: 0 22px 55px rgba(29, 38, 48, 0.12);
+  --text-muted: #5f6770;
+  --accent: #0f766e;
+  --accent-strong: #0f4c5c;
+  --warm: #c37211;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.topbar-copy h1,
+.hero-copy h2,
+.panel-header h3,
+.legend-head h3 {
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.topbar-subtitle,
+.hero-copy p,
+.metric-hint,
+.panel-note,
+.loading-state {
+  color: var(--text-muted);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  color: var(--warm);
+}
+
+.topbar-nav,
+.toggle-row,
+.category-legend,
+.legend-scale {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-pill,
+.toggle-chip,
+.pill-muted {
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 10px 14px;
+  color: #23313f;
+  text-decoration: none;
+}
+
+.nav-pill-active,
+.toggle-chip-active {
+  background: linear-gradient(120deg, #183a4a, #0f766e);
+  color: #fff;
+  border-color: transparent;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.overview-grid {
+  grid-template-columns: 320px minmax(0, 1.1fr) minmax(0, 0.95fr);
+}
+
+.models-grid {
+  grid-template-columns: 340px minmax(0, 1.3fr);
+}
+
+.hero-panel,
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.hero-panel {
+  grid-column: 1 / -1;
+  padding: 28px;
+}
+
+.panel {
+  padding: 20px;
+}
+
+.rise {
+  position: relative;
+}
+
+.metric-grid {
+  margin-top: 18px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-card {
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(236, 240, 235, 0.78));
+  border: 1px solid rgba(27, 40, 52, 0.08);
+}
+
+.metric-label,
+.meta-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.metric-value {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.6rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.text-input,
+.select-input {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(24, 33, 43, 0.12);
+  background: rgba(255, 255, 255, 0.78);
+  padding: 12px 14px;
+}
+
+.station-list {
+  display: grid;
+  gap: 10px;
+  max-height: 480px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.station-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid rgba(24, 33, 43, 0.1);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 14px;
+  border-radius: 16px;
+  text-align: left;
+}
+
+.station-button-active {
+  border-color: rgba(15, 76, 92, 0.2);
+  background: linear-gradient(120deg, rgba(15, 76, 92, 0.12), rgba(15, 118, 110, 0.08));
+}
+
+.map-panel,
+.scene-panel {
+  min-height: 560px;
+}
+
+.map-view,
+.scene-shell,
+.fault-canvas {
+  height: 100%;
+  min-height: 470px;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.station-panel,
+.patch-panel {
+  min-height: 420px;
+}
+
+.station-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.chart-shell {
+  min-height: 340px;
+  border-radius: 22px;
+  background: rgba(244, 242, 235, 0.95);
+  border: 1px solid rgba(24, 33, 43, 0.07);
+  padding: 10px;
+}
+
+.timeseries-chart {
+  width: 100%;
+  min-height: 320px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.detail-stack {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.detail-card {
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(24, 33, 43, 0.08);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.legend-block {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(24, 33, 43, 0.08);
+}
+
+.legend-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.legend-gradient {
+  height: 18px;
+  border-radius: 999px;
+  margin: 14px 0 8px;
+}
+
+.legend-scale {
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.loading-state {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+}
+
+@media (max-width: 1180px) {
+  .overview-grid,
+  .models-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metric-grid,
+  .station-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map-panel,
+  .scene-panel {
+    min-height: 420px;
+  }
+}
