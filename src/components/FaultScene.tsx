@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { Canvas, ThreeEvent, useThree } from "@react-three/fiber";
-import { Line, OrbitControls } from "@react-three/drei";
+import { Line } from "@react-three/drei";
 import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
 import { colorForValue } from "../lib/colors";
 import type { FaultPatch, FaultPatchesData, SnapshotFieldMeta, StationSummary } from "../lib/types";
@@ -40,11 +40,9 @@ function sceneExtent(fault: FaultPatchesData, stations: StationSummary[]) {
 
 function CameraPresetController({
   preset,
-  controlsRef,
   extent,
 }: {
   preset: ViewPreset;
-  controlsRef: React.MutableRefObject<any>;
   extent: number;
 }) {
   const { camera } = useThree();
@@ -60,15 +58,7 @@ function CameraPresetController({
 
     camera.lookAt(0, -4000, 0);
     camera.updateProjectionMatrix();
-
-    if (controlsRef.current) {
-      controlsRef.current.target.set(0, -4000, 0);
-      controlsRef.current.enableRotate = preset !== "top";
-      controlsRef.current.minDistance = Math.max(extent * 0.1, 4000);
-      controlsRef.current.maxDistance = extent * 3;
-      controlsRef.current.update();
-    }
-  }, [camera, controlsRef, extent, preset]);
+  }, [camera, extent, preset]);
 
   return null;
 }
@@ -124,11 +114,6 @@ function FaultMesh({
   return (
     <mesh
       geometry={geometry}
-      onPointerMove={(event) => {
-        event.stopPropagation();
-        onHoverPatch(resolvePatchId(event));
-      }}
-      onPointerLeave={() => onHoverPatch(null)}
       onClick={(event) => {
         event.stopPropagation();
         onSelectPatch(resolvePatchId(event));
@@ -190,22 +175,24 @@ export function FaultScene({
   onHoverPatch,
   onSelectPatch,
 }: FaultSceneProps) {
-  const controlsRef = useRef<any>(null);
   const extent = useMemo(() => sceneExtent(fault, stations), [fault, stations]);
   const hoveredPatch = hoveredPatchId != null ? fault.patches[hoveredPatchId] : null;
   const selectedPatch = selectedPatchId != null ? fault.patches[selectedPatchId] : null;
+  const cameraConfig = useMemo(
+    () => ({ position: [0, extent * 1.05, 0.01] as [number, number, number], fov: 38, near: 10, far: extent * 10 }),
+    [extent],
+  );
 
   return (
     <Canvas
-      camera={{ position: [0, extent * 1.05, 0.01], fov: 38, near: 10, far: extent * 10 }}
+      camera={cameraConfig}
       className="fault-canvas"
-      onPointerMissed={() => onSelectPatch(null)}
     >
       <color attach="background" args={["#f4f2eb"]} />
       <ambientLight intensity={1.2} />
       <directionalLight position={[0, extent, extent]} intensity={1.3} />
       <directionalLight position={[-extent, extent * 0.4, -extent * 0.2]} intensity={0.6} />
-      <CameraPresetController preset={viewPreset} controlsRef={controlsRef} extent={extent} />
+      <CameraPresetController preset={viewPreset} extent={extent} />
       <FaultMesh
         fault={fault}
         fieldMeta={fieldMeta}
@@ -219,13 +206,6 @@ export function FaultScene({
         <PatchOutline patch={hoveredPatch} color="#f97316" />
       ) : null}
       {selectedPatch ? <PatchOutline patch={selectedPatch} color="#111827" /> : null}
-      <OrbitControls
-        ref={controlsRef}
-        makeDefault
-        enableZoom={false}
-        enablePan={false}
-        rotateSpeed={0.7}
-      />
     </Canvas>
   );
 }
