@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { ColorLegend } from "../components/ColorLegend";
-import { FaultScene, type ViewPreset } from "../components/FaultScene";
+import { FaultScene } from "../components/FaultScene";
 import { MetricCard } from "../components/MetricCard";
 import {
   loadFaultPatches,
-  loadFaultTrace,
   loadModelDetail,
   loadModels,
   loadModelSnapshot,
-  loadStations,
 } from "../lib/api";
 import { formatCompactNumber, formatDateLabel, formatScientific } from "../lib/format";
 import type {
@@ -16,31 +14,25 @@ import type {
   ModelDetail,
   ModelsResponse,
   SnapshotData,
-  StationSummary,
 } from "../lib/types";
 
 export function ModelsPage() {
   const [modelsPayload, setModelsPayload] = useState<ModelsResponse | null>(null);
   const [faultPatches, setFaultPatches] = useState<FaultPatchesData | null>(null);
-  const [faultTrace, setFaultTrace] = useState<GeoJSON.FeatureCollection | null>(null);
-  const [stations, setStations] = useState<StationSummary[]>([]);
   const [selectedModelKey, setSelectedModelKey] = useState("");
   const [modelDetail, setModelDetail] = useState<ModelDetail | null>(null);
   const [selectedFieldKey, setSelectedFieldKey] = useState("");
   const [selectedSnapshotKey, setSelectedSnapshotKey] = useState("");
   const [snapshotData, setSnapshotData] = useState<SnapshotData | null>(null);
-  const [viewPreset, setViewPreset] = useState<ViewPreset>("oblique");
   const [hoveredPatchId, setHoveredPatchId] = useState<number | null>(null);
   const [selectedPatchId, setSelectedPatchId] = useState<number | null>(null);
   const [snapshotLoading, setSnapshotLoading] = useState(false);
 
   useEffect(() => {
-    void Promise.all([loadModels(), loadFaultPatches(), loadFaultTrace(), loadStations()]).then(
-      ([modelsData, faultData, faultTraceData, stationsData]) => {
+    void Promise.all([loadModels(), loadFaultPatches()]).then(
+      ([modelsData, faultData]) => {
         setModelsPayload(modelsData);
         setFaultPatches(faultData);
-        setFaultTrace(faultTraceData);
-        setStations(stationsData.stations);
         setSelectedModelKey(modelsData.default_model_key);
       },
     );
@@ -96,10 +88,10 @@ export function ModelsPage() {
       <section className="hero-panel rise">
         <div className="hero-copy">
           <p className="eyebrow">Modelli PINN</p>
-          <h2>Vista 3D della faglia con mesh reale e campi fisici selezionabili</h2>
+          <h2>Vista statica orizzontale della faglia con campi fisici selezionabili</h2>
           <p>
-            Viewer 3D basato sulla web app di riferimento: mesh triangolare reale, stazioni GNSS,
-            overlay della superficie di faglia e navigazione top/oblique.
+            La faglia viene mostrata come rettangolo longitudinale fisso, colorato per patch. Niente
+            punti, niente drift, niente movimenti automatici.
           </p>
         </div>
 
@@ -185,23 +177,6 @@ export function ModelsPage() {
           </select>
         </label>
 
-        <div className="toggle-row">
-          <button
-            type="button"
-            className={viewPreset === "top" ? "toggle-chip toggle-chip-active" : "toggle-chip"}
-            onClick={() => setViewPreset("top")}
-          >
-            Top
-          </button>
-          <button
-            type="button"
-            className={viewPreset === "oblique" ? "toggle-chip toggle-chip-active" : "toggle-chip"}
-            onClick={() => setViewPreset("oblique")}
-          >
-            Oblique
-          </button>
-        </div>
-
         {modelDetail ? (
           <div className="detail-stack">
             <div className="detail-card">
@@ -227,8 +202,8 @@ export function ModelsPage() {
       <section className="panel rise scene-panel">
         <div className="panel-header">
           <div>
-            <p className="eyebrow">Scena 3D</p>
-            <h3>Faglia, colori per patch e overlay stazioni</h3>
+            <p className="eyebrow">Vista faglia</p>
+            <h3>Rettangolo longitudinale statico colorato per patch</h3>
           </div>
           {snapshotLoading ? <span className="pill-muted">Loading snapshot…</span> : null}
         </div>
@@ -237,11 +212,11 @@ export function ModelsPage() {
           {faultPatches && modelDetail && fieldMeta ? (
             <FaultScene
               fault={faultPatches}
-              faultTrace={faultTrace}
-              stations={stations}
+              faultTrace={null}
+              stations={[]}
               fieldMeta={fieldMeta}
               fieldValues={fieldValues}
-              viewPreset={viewPreset}
+              viewPreset="top"
               hoveredPatchId={hoveredPatchId}
               selectedPatchId={selectedPatchId}
               onHoverPatch={setHoveredPatchId}
