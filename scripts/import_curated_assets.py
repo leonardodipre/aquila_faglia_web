@@ -65,10 +65,34 @@ def relative_manifest_path(path: Path) -> str:
         return path.name
 
 
+def resolve_snapshot_keys(
+    model_config: dict[str, Any],
+    snapshots_by_key: dict[str, Any],
+    snapshot_strategy: dict[str, Any] | None,
+) -> list[str]:
+    if model_config.get("snapshot_keys"):
+        return list(model_config["snapshot_keys"])
+
+    if not snapshot_strategy:
+        raise KeyError(f"No snapshot selection configured for model '{model_config['key']}'.")
+
+    if snapshot_strategy.get("mode") != "yearly_jan":
+        raise ValueError(f"Unsupported snapshot strategy: {snapshot_strategy.get('mode')}")
+
+    start_year = int(snapshot_strategy["start_year"])
+    end_year = int(snapshot_strategy["end_year"])
+    selected = [f"{year}-01-01" for year in range(start_year, end_year + 1)]
+    missing = [snapshot_key for snapshot_key in selected if snapshot_key not in snapshots_by_key]
+    if missing:
+        raise KeyError(f"Snapshot keys {missing} missing for model '{model_config['key']}'.")
+    return selected
+
+
 def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: Path) -> dict[str, Any]:
     config = load_json(config_path)
     field_allowlist = config.get("field_allowlist")
     field_overrides = config.get("field_overrides", {})
+    snapshot_strategy = config.get("snapshot_strategy")
     source_catalog = load_json(source_data_dir / "models" / "index.json")
     stations_payload = load_json(source_data_dir / "stations.json")
     fault_trace = load_json(source_data_dir / "fault.geojson")
@@ -136,8 +160,9 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
             }
 
         snapshots_by_key = {snapshot["date_key"]: snapshot for snapshot in source_index["snapshots"]}
+        snapshot_keys = resolve_snapshot_keys(model_config, snapshots_by_key, snapshot_strategy)
         selected_snapshots = []
-        for snapshot_key in model_config["snapshot_keys"]:
+        for snapshot_key in snapshot_keys:
             if snapshot_key not in snapshots_by_key:
                 raise KeyError(f"Snapshot '{snapshot_key}' missing for model '{model_key}'.")
             source_snapshot = snapshots_by_key[snapshot_key]

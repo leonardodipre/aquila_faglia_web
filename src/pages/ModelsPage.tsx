@@ -65,6 +65,12 @@ export function ModelsPage() {
   }, [selectedModelKey, selectedSnapshotKey]);
 
   const fieldMeta = modelDetail?.fields[selectedFieldKey] ?? null;
+  const selectedSnapshotIndex = useMemo(() => {
+    if (!modelDetail) {
+      return 0;
+    }
+    return Math.max(0, modelDetail.snapshots.findIndex((snapshot) => snapshot.date_key === selectedSnapshotKey));
+  }, [modelDetail, selectedSnapshotKey]);
   const fieldValues = useMemo(() => {
     if (!modelDetail || !selectedFieldKey) {
       return [];
@@ -104,7 +110,7 @@ export function ModelsPage() {
           <MetricCard
             label="Snapshot modello"
             value={modelDetail ? formatCompactNumber(modelDetail.snapshot_count, 0) : "…"}
-            hint="snapshot ridotti per i 5 modelli"
+            hint="1 snapshot per anno dal 2000 al 2025"
           />
           <MetricCard
             label="Campi fisici"
@@ -176,6 +182,31 @@ export function ModelsPage() {
             ))}
           </select>
         </label>
+
+        {modelDetail ? (
+          <label className="field-group">
+            <span>Barra snapshot</span>
+            <input
+              className="slider-input"
+              type="range"
+              min={0}
+              max={Math.max(modelDetail.snapshots.length - 1, 0)}
+              step={1}
+              value={selectedSnapshotIndex}
+              onChange={(event) => {
+                const snapshot = modelDetail.snapshots[Number(event.target.value)];
+                if (snapshot) {
+                  setSelectedSnapshotKey(snapshot.date_key);
+                }
+              }}
+            />
+            <span className="meta-label">
+              {modelDetail.snapshots[selectedSnapshotIndex]
+                ? formatDateLabel(modelDetail.snapshots[selectedSnapshotIndex].date)
+                : "n/a"}
+            </span>
+          </label>
+        ) : null}
 
         {modelDetail ? (
           <div className="detail-stack">
@@ -270,6 +301,12 @@ export function ModelsPage() {
                 {formatCompactNumber(inspectedPatch.center_local_xyz_m[0], 0)},{" "}
                 {formatCompactNumber(inspectedPatch.center_local_xyz_m[1], 0)},{" "}
                 {formatCompactNumber(inspectedPatch.center_local_xyz_m[2], 0)}
+              </strong>
+            </div>
+            <div>
+              <span className="meta-label">Color range</span>
+              <strong>
+                {formatScientific(fieldMeta.min)} - {formatScientific(fieldMeta.max)}
               </strong>
             </div>
           </div>

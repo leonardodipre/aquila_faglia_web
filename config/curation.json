@@ -8,6 +8,7 @@
     "slip_rate_m_per_s",
     "a",
     "b",
+    "a_minus_b",
     "D_c_m",
     "tau_elastic_pa",
     "tau_rsf_pa",
@@ -17,6 +18,9 @@
   "field_overrides": {
     "slip_rate_m_per_s": {
       "label": "V"
+    },
+    "a_minus_b": {
+      "label": "a-b"
     },
     "D_c_m": {
       "label": "Dc"
@@ -37,28 +41,28 @@
   "models": [
     {
       "key": "seed_sweep_baseline_qd_seed42",
-      "label": "baseline_qd_seed42",
-      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
+      "label": "baseline_qd_seed42"
     },
     {
       "key": "seed_sweep_baseline_seed42",
-      "label": "baseline_seed42",
-      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
+      "label": "baseline_seed42"
     },
     {
       "key": "seed_sweep_baseline_seed154",
-      "label": "baseline_seed154",
-      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
+      "label": "baseline_seed154"
     },
     {
       "key": "seed_sweep_baseline_seed256",
-      "label": "baseline_seed256",
-      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
+      "label": "baseline_seed256"
     },
     {
       "key": "seed_sweep_baseline_seed7",
-      "label": "baseline_seed7",
-      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
+      "label": "baseline_seed7"
     }
-  ]
+  ],
+  "snapshot_strategy": {
+    "mode": "yearly_jan",
+    "start_year": 2000,
+    "end_year": 2025
+  }
 }

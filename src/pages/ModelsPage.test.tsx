@@ -27,35 +27,6 @@ const modelsFixture = {
   ],
 };
 
-const stationsFixture = {
-  default_station_id: "AQUI00ITA",
-  summary: {
-    station_count: 1,
-    category_counts: { accepted: 1 },
-    coordinate_source: "source",
-    total_time_series_samples: 4,
-  },
-  stations: [
-    {
-      station_id: "AQUI00ITA",
-      label: "L'Aquila",
-      category: "accepted",
-      reference_system: "ITRF",
-      latitude: 42.35,
-      longitude: 13.4,
-      utm_e_m: 0,
-      utm_n_m: 0,
-      local_xyz_m: [0, 0, 0],
-      coordinates_source: "source",
-      is_fallback_coordinate: false,
-      available_date_range: { start: "2020-01-01", end: "2024-12-31" },
-      timeseries_path: "timeseries/AQUI00ITA.json",
-      sample_count: 4,
-      source_file: "AQUI00ITA.csv",
-    },
-  ],
-};
-
 const faultFixture = {
   meta: {
     patch_count: 1,
@@ -113,32 +84,11 @@ const faultFixture = {
   ],
 };
 
-const faultTraceFixture = {
-  type: "FeatureCollection",
-  features: [
-    {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [13.4, 42.35],
-            [13.401, 42.35],
-            [13.401, 42.351],
-            [13.4, 42.35],
-          ],
-        ],
-      },
-    },
-  ],
-};
-
 const makeDetail = (key: string, label: string) => ({
   key,
   label,
   checkpoint: `checkpoints/seed_sweep/${label}.pt`,
-  snapshot_count: 2,
+  snapshot_count: 26,
   default_snapshot_key: "2000-01-01",
   default_field_key: "slip_m",
   time_range: { start: "2000-01-01", end: "2025-12-31" },
@@ -147,6 +97,7 @@ const makeDetail = (key: string, label: string) => ({
     "slip_rate_m_per_s",
     "a",
     "b",
+    "a_minus_b",
     "D_c_m",
     "tau_elastic_pa",
     "tau_rsf_pa",
@@ -184,6 +135,14 @@ const makeDetail = (key: string, label: string) => ({
       color_map: "ylorred",
       scale: "linear",
       min: 0,
+      max: 1,
+    },
+    a_minus_b: {
+      label: "a-b",
+      units: "unitless",
+      color_map: "rdbu",
+      scale: "symmetric",
+      min: -1,
       max: 1,
     },
     D_c_m: {
@@ -229,7 +188,8 @@ const makeDetail = (key: string, label: string) => ({
   },
   snapshots: [
     { date: "2000-01-01", date_key: "2000-01-01" },
-    { date: "2025-12-31", date_key: "2025-12-31" },
+    { date: "2001-01-01", date_key: "2001-01-01" },
+    { date: "2025-01-01", date_key: "2025-01-01" },
   ],
 });
 
@@ -243,6 +203,7 @@ const makeSnapshot = (value: number) => ({
     slip_rate_m_per_s: [value + 0.01],
     a: [value + 0.1],
     b: [value + 0.2],
+    a_minus_b: [value - 0.1],
     D_c_m: [value + 0.3],
     tau_elastic_pa: [value + 0.4],
     aging_residual: [value - 0.5],
@@ -263,10 +224,6 @@ describe("ModelsPage", () => {
         payload = modelsFixture;
       } else if (url === "/aquila_faglia_web/fault_patches.json") {
         payload = faultFixture;
-      } else if (url === "/aquila_faglia_web/fault.geojson") {
-        payload = faultTraceFixture;
-      } else if (url === "/aquila_faglia_web/stations.json") {
-        payload = stationsFixture;
       } else if (url === "/aquila_faglia_web/model_snapshots/seed_sweep_baseline_qd_seed42/index.json") {
         payload = makeDetail("seed_sweep_baseline_qd_seed42", "baseline_qd_seed42");
       } else if (url === "/aquila_faglia_web/model_snapshots/seed_sweep_baseline_seed42/index.json") {
@@ -294,8 +251,7 @@ describe("ModelsPage", () => {
     render(<ModelsPage />);
 
     await waitFor(() => {
-      const [modelSelect] = screen.getAllByLabelText("Modello");
-      expect(modelSelect).toHaveValue("seed_sweep_baseline_qd_seed42");
+      expect(screen.getByLabelText("Modello")).toHaveValue("seed_sweep_baseline_qd_seed42");
     });
     expect(await screen.findByTestId("fault-canvas")).toBeInTheDocument();
 
@@ -316,7 +272,7 @@ describe("ModelsPage", () => {
     expect(screen.getByLabelText("Modello")).toHaveValue("seed_sweep_baseline_seed42");
   });
 
-  it("shows only the curated nine fields in the selector", async () => {
+  it("shows only the curated ten fields in the selector", async () => {
     render(<ModelsPage />);
 
     await waitFor(() => {
@@ -330,6 +286,7 @@ describe("ModelsPage", () => {
       "slip_rate_m_per_s",
       "a",
       "b",
+      "a_minus_b",
       "D_c_m",
       "tau_elastic_pa",
       "tau_rsf_pa",

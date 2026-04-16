@@ -18,8 +18,9 @@ interface FaultSceneProps {
 }
 
 const VIEWBOX_WIDTH = 1200;
-const VIEWBOX_HEIGHT = 520;
+const VIEWBOX_HEIGHT = 340;
 const PADDING = 28;
+const VERTICAL_FLATTENING = 0.58;
 
 export function FaultScene({
   fault,
@@ -33,13 +34,15 @@ export function FaultScene({
   const nx = Math.max(fault.meta.grid.nx, 1);
   const ny = Math.max(fault.meta.grid.ny, 1);
   const cellWidth = (VIEWBOX_WIDTH - PADDING * 2) / nx;
-  const cellHeight = (VIEWBOX_HEIGHT - PADDING * 2) / ny;
+  const rawCellHeight = (VIEWBOX_HEIGHT - PADDING * 2) / ny;
+  const cellHeight = rawCellHeight * VERTICAL_FLATTENING;
+  const topOffset = (VIEWBOX_HEIGHT - cellHeight * ny) / 2;
 
   const cells = useMemo(
     () =>
       fault.patches.map((patch) => {
         const x = PADDING + patch.col * cellWidth;
-        const y = PADDING + patch.row * cellHeight;
+        const y = topOffset + patch.row * cellHeight;
         return {
           patch,
           x,

@@ -215,6 +215,11 @@ select {
   padding: 12px 14px;
 }
 
+.slider-input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
 .station-list {
   display: grid;
   gap: 10px;
