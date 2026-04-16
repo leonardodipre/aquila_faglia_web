@@ -18,9 +18,10 @@ interface FaultSceneProps {
 }
 
 const VIEWBOX_WIDTH = 1200;
-const VIEWBOX_HEIGHT = 340;
-const PADDING = 28;
-const VERTICAL_FLATTENING = 0.58;
+const VIEWBOX_HEIGHT = 260;
+const OUTER_PADDING = 32;
+const HORIZONTAL_INSET = 26;
+const VERTICAL_FLATTENING = 0.82;
 
 export function FaultScene({
   fault,
@@ -33,15 +34,22 @@ export function FaultScene({
 }: FaultSceneProps) {
   const nx = Math.max(fault.meta.grid.nx, 1);
   const ny = Math.max(fault.meta.grid.ny, 1);
-  const cellWidth = (VIEWBOX_WIDTH - PADDING * 2) / nx;
-  const rawCellHeight = (VIEWBOX_HEIGHT - PADDING * 2) / ny;
-  const cellHeight = rawCellHeight * VERTICAL_FLATTENING;
-  const topOffset = (VIEWBOX_HEIGHT - cellHeight * ny) / 2;
+  const drawableWidth = VIEWBOX_WIDTH - OUTER_PADDING * 2 - HORIZONTAL_INSET * 2;
+  const drawableHeight = VIEWBOX_HEIGHT - OUTER_PADDING * 2;
+  const faultWidth = drawableWidth;
+  const faultHeight = Math.min(
+    drawableHeight,
+    drawableWidth * (ny / nx) * VERTICAL_FLATTENING,
+  );
+  const cellWidth = faultWidth / nx;
+  const cellHeight = faultHeight / ny;
+  const leftOffset = (VIEWBOX_WIDTH - faultWidth) / 2;
+  const topOffset = (VIEWBOX_HEIGHT - faultHeight) / 2;
 
   const cells = useMemo(
     () =>
       fault.patches.map((patch) => {
-        const x = PADDING + patch.col * cellWidth;
+        const x = leftOffset + patch.col * cellWidth;
         const y = topOffset + patch.row * cellHeight;
         return {
           patch,
@@ -52,7 +60,7 @@ export function FaultScene({
           fill: colorForValue(fieldValues[patch.id] ?? 0, fieldMeta),
         };
       }),
-    [cellHeight, cellWidth, fault.patches, fieldMeta, fieldValues],
+    [cellHeight, cellWidth, fault.patches, fieldMeta, fieldValues, leftOffset, topOffset],
   );
 
   return (
@@ -62,16 +70,17 @@ export function FaultScene({
       viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
       role="img"
       aria-label="Fault rectangle view"
+      preserveAspectRatio="xMidYMid meet"
       onMouseLeave={() => onHoverPatch(null)}
     >
       <rect x={0} y={0} width={VIEWBOX_WIDTH} height={VIEWBOX_HEIGHT} fill="#f4f2eb" />
       <rect
-        x={PADDING}
-        y={PADDING}
-        width={VIEWBOX_WIDTH - PADDING * 2}
-        height={VIEWBOX_HEIGHT - PADDING * 2}
-        rx={16}
-        fill="#e8e1d2"
+        x={leftOffset - 12}
+        y={topOffset - 12}
+        width={faultWidth + 24}
+        height={faultHeight + 24}
+        rx={18}
+        fill="#efe7d8"
         stroke="rgba(24, 33, 43, 0.14)"
         strokeWidth={2}
       />

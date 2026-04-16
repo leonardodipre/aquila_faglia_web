@@ -248,14 +248,14 @@ select {
 
 .map-panel,
 .scene-panel {
-  min-height: 560px;
+  min-height: 500px;
 }
 
 .map-view,
 .scene-shell,
 .fault-canvas {
   height: 100%;
-  min-height: 470px;
+  min-height: 360px;
   border-radius: 22px;
   overflow: hidden;
 }
@@ -382,6 +382,6 @@ select {
 
   .map-panel,
   .scene-panel {
-    min-height: 420px;
+    min-height: 360px;
   }
 }

@@ -254,7 +254,7 @@ export function ModelsPage() {
               onSelectPatch={setSelectedPatchId}
             />
           ) : (
-            <div className="loading-state">Loading 3D scene…</div>
+            <div className="loading-state">Loading fault view…</div>
           )}
         </div>
       </section>
