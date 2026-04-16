@@ -71,6 +71,23 @@ select {
   color: var(--text-muted);
 }
 
+.runtime-error {
+  border: 1px solid rgba(190, 24, 93, 0.24);
+  background: rgba(255, 241, 242, 0.92);
+  color: #881337;
+  border-radius: 18px;
+  padding: 18px 20px;
+}
+
+.runtime-error strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.runtime-error p {
+  margin: 0;
+}
+
 .eyebrow {
   margin: 0 0 8px;
   text-transform: uppercase;

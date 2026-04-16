@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const OverviewPage = lazy(() =>
   import("./pages/OverviewPage").then((module) => ({ default: module.OverviewPage })),
@@ -35,12 +36,14 @@ export function App() {
       </header>
 
       <main className="app-main">
-        <Suspense fallback={<div className="loading-state">Loading interface…</div>}>
-          <Routes>
-            <Route path="/" element={<OverviewPage />} />
-            <Route path="/modelli" element={<ModelsPage />} />
-          </Routes>
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="loading-state">Loading interface…</div>}>
+            <Routes>
+              <Route path="/" element={<OverviewPage />} />
+              <Route path="/modelli" element={<ModelsPage />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
     </div>
   );

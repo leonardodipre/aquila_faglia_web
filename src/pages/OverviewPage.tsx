@@ -45,6 +45,7 @@ export function OverviewPage() {
   const [manifest, setManifest] = useState<ManifestData | null>(null);
   const [stationsPayload, setStationsPayload] = useState<StationsResponse | null>(null);
   const [faultGeoJSON, setFaultGeoJSON] = useState<GeoJSON.FeatureCollection | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedStationId, setSelectedStationId] = useState("");
   const [selectedSeries, setSelectedSeries] = useState<StationTimeseries | null>(null);
   const [search, setSearch] = useState("");
@@ -55,14 +56,18 @@ export function OverviewPage() {
   const deferredSearch = useDeferredValue(search.trim().toUpperCase());
 
   useEffect(() => {
-    void Promise.all([loadManifest(), loadStations(), loadFaultTrace()]).then(
-      ([manifestPayload, stationsData, faultTrace]) => {
+    void Promise.all([loadManifest(), loadStations(), loadFaultTrace()])
+      .then(([manifestPayload, stationsData, faultTrace]) => {
+        setLoadError(null);
         setManifest(manifestPayload);
         setStationsPayload(stationsData);
         setFaultGeoJSON(faultTrace);
         setSelectedStationId(stationsData.default_station_id);
-      },
-    );
+      })
+      .catch((error) => {
+        console.error("Failed to load overview payloads", error);
+        setLoadError("Impossibile caricare i dati iniziali della pagina.");
+      });
   }, []);
 
   useEffect(() => {
@@ -71,7 +76,15 @@ export function OverviewPage() {
     }
     setSeriesLoading(true);
     void loadStationTimeseries(selectedStationId)
-      .then((payload) => setSelectedSeries(payload))
+      .then((payload) => {
+        setLoadError(null);
+        setSelectedSeries(payload);
+      })
+      .catch((error) => {
+        console.error(`Failed to load station timeseries for ${selectedStationId}`, error);
+        setSelectedSeries(null);
+        setLoadError(`Impossibile caricare la serie temporale per ${selectedStationId}.`);
+      })
       .finally(() => setSeriesLoading(false));
   }, [selectedStationId]);
 
@@ -91,6 +104,19 @@ export function OverviewPage() {
   const selectedStation = useMemo(() => {
     return stationsPayload?.stations.find((station) => station.station_id === selectedStationId) ?? null;
   }, [selectedStationId, stationsPayload?.stations]);
+
+  if (loadError && !stationsPayload) {
+    return (
+      <section className="page-grid overview-grid">
+        <section className="panel rise">
+          <div className="runtime-error" role="alert">
+            <strong>Errore di caricamento.</strong>
+            <p>{loadError}</p>
+          </div>
+        </section>
+      </section>
+    );
+  }
 
   return (
     <section className="page-grid overview-grid">
@@ -317,6 +343,12 @@ export function OverviewPage() {
         </div>
 
         <div className="chart-shell">
+          {loadError && selectedSeries == null ? (
+            <div className="runtime-error" role="alert">
+              <strong>Serie temporale non disponibile.</strong>
+              <p>{loadError}</p>
+            </div>
+          ) : null}
           {selectedSeries && !seriesLoading ? (
             <TimeSeriesChart series={selectedSeries} useCleaned={useCleaned} normalized={normalized} />
           ) : (
@@ -327,4 +359,3 @@ export function OverviewPage() {
     </section>
   );
 }
-
