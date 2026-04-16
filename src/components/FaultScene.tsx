@@ -219,7 +219,13 @@ export function FaultScene({
         <PatchOutline patch={hoveredPatch} color="#f97316" />
       ) : null}
       {selectedPatch ? <PatchOutline patch={selectedPatch} color="#111827" /> : null}
-      <OrbitControls ref={controlsRef} makeDefault />
+      <OrbitControls
+        ref={controlsRef}
+        makeDefault
+        enableZoom={false}
+        enablePan={false}
+        rotateSpeed={0.7}
+      />
     </Canvas>
   );
 }
