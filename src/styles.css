@@ -252,10 +252,26 @@ select {
 }
 
 .map-view,
-.scene-shell,
-.fault-canvas {
+.scene-shell {
   height: 100%;
   min-height: 360px;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.scene-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.fault-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: 100%;
   border-radius: 22px;
   overflow: hidden;
 }

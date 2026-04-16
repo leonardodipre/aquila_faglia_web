@@ -68,6 +68,8 @@ export function FaultScene({
       data-testid="fault-canvas"
       className="fault-canvas"
       viewBox={`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`}
+      width="100%"
+      height="100%"
       role="img"
       aria-label="Fault rectangle view"
       preserveAspectRatio="xMidYMid meet"
