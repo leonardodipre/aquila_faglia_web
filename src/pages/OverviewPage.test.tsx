@@ -106,15 +106,15 @@ describe("OverviewPage", () => {
       const url = String(input);
       let payload: unknown = null;
 
-      if (url === "./manifest.json") {
+      if (url === "/aquila_faglia_web/manifest.json") {
         payload = manifestFixture;
-      } else if (url === "./stations.json") {
+      } else if (url === "/aquila_faglia_web/stations.json") {
         payload = stationsFixture;
-      } else if (url === "./fault.geojson") {
+      } else if (url === "/aquila_faglia_web/fault.geojson") {
         payload = faultFixture;
-      } else if (url === "./timeseries/AQUI00ITA.json") {
+      } else if (url === "/aquila_faglia_web/timeseries/AQUI00ITA.json") {
         payload = makeSeries("AQUI00ITA");
-      } else if (url === "./timeseries/ACQU01ITA.json") {
+      } else if (url === "/aquila_faglia_web/timeseries/ACQU01ITA.json") {
         payload = makeSeries("ACQU01ITA");
       }
 
@@ -140,7 +140,7 @@ describe("OverviewPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /ACQU01ITA/i }));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("./timeseries/ACQU01ITA.json");
+      expect(global.fetch).toHaveBeenCalledWith("/aquila_faglia_web/timeseries/ACQU01ITA.json");
     });
 
     expect(screen.getByRole("heading", { name: "ACQU01ITA" })).toBeInTheDocument();

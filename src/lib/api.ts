@@ -10,7 +10,8 @@ import type {
 } from "./types";
 
 const jsonCache = new Map<string, Promise<unknown>>();
-const staticPath = (path: string) => `./${path}`;
+const staticBase = import.meta.env.BASE_URL;
+const staticPath = (path: string) => `${staticBase}${path}`;
 
 function normalizeTimeseriesPath(path: string) {
   if (path.startsWith("/data/")) {

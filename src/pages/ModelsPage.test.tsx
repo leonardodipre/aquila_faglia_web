@@ -161,19 +161,19 @@ describe("ModelsPage", () => {
       const url = String(input);
       let payload: unknown = null;
 
-      if (url === "./models/index.json") {
+      if (url === "/aquila_faglia_web/models/index.json") {
         payload = modelsFixture;
-      } else if (url === "./fault_patches.json") {
+      } else if (url === "/aquila_faglia_web/fault_patches.json") {
         payload = faultFixture;
-      } else if (url === "./stations.json") {
+      } else if (url === "/aquila_faglia_web/stations.json") {
         payload = stationsFixture;
-      } else if (url === "./model_snapshots/best_sweep/index.json") {
+      } else if (url === "/aquila_faglia_web/model_snapshots/best_sweep/index.json") {
         payload = makeDetail("best_sweep", "Best Sweep");
-      } else if (url === "./model_snapshots/ab_prior/index.json") {
+      } else if (url === "/aquila_faglia_web/model_snapshots/ab_prior/index.json") {
         payload = makeDetail("ab_prior", "a-b Prior");
-      } else if (url === "./model_snapshots/best_sweep/2020-01-01.json") {
+      } else if (url === "/aquila_faglia_web/model_snapshots/best_sweep/2020-01-01.json") {
         payload = makeSnapshot(0.25);
-      } else if (url === "./model_snapshots/ab_prior/2020-01-01.json") {
+      } else if (url === "/aquila_faglia_web/model_snapshots/ab_prior/2020-01-01.json") {
         payload = makeSnapshot(0.55);
       }
 
@@ -208,8 +208,8 @@ describe("ModelsPage", () => {
     });
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("./model_snapshots/ab_prior/index.json");
-      expect(global.fetch).toHaveBeenCalledWith("./model_snapshots/ab_prior/2020-01-01.json");
+      expect(global.fetch).toHaveBeenCalledWith("/aquila_faglia_web/model_snapshots/ab_prior/index.json");
+      expect(global.fetch).toHaveBeenCalledWith("/aquila_faglia_web/model_snapshots/ab_prior/2020-01-01.json");
     });
 
     expect(screen.getByLabelText("Modello")).toHaveValue("ab_prior");

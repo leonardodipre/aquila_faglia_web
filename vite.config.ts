@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "./",
+  base: "/aquila_faglia_web/",
   publicDir: "data",
   plugins: [react()],
   server: {
