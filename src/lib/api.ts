@@ -13,6 +13,13 @@ const jsonCache = new Map<string, Promise<unknown>>();
 const staticBase = import.meta.env.BASE_URL;
 const staticPath = (path: string) => `${staticBase}${path}`;
 
+interface StaticStationsPayload {
+  default_station_id?: string;
+  summary?: StationsResponse["summary"];
+  meta?: StationsResponse["summary"];
+  stations: StationSummary[];
+}
+
 function normalizeTimeseriesPath(path: string) {
   if (path.startsWith("/data/")) {
     return path.slice("/data/".length);
@@ -51,9 +58,20 @@ export function loadManifest() {
 }
 
 export async function loadStations() {
-  const payload = await fetchJson<StationsResponse>(staticPath("stations.json"));
+  const payload = await fetchJson<StaticStationsPayload>(staticPath("stations.json"));
+  const defaultStationId =
+    payload.default_station_id ??
+    payload.stations.find((station) => station.station_id === "AQUI00ITA")?.station_id ??
+    payload.stations[0]?.station_id ??
+    "";
   return {
-    ...payload,
+    default_station_id: defaultStationId,
+    summary: payload.summary ?? payload.meta ?? {
+      station_count: payload.stations.length,
+      category_counts: {},
+      coordinate_source: "unknown",
+      total_time_series_samples: 0,
+    },
     stations: payload.stations.map(normalizeStation),
   };
 }
