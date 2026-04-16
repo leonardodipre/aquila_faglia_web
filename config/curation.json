@@ -1,65 +1,64 @@
 {
   "source_data_dir": "../Erthquake_physics/we-app/public/data",
   "default_station_id": "AQUI00ITA",
-  "default_model_key": "best_sweep",
+  "default_model_key": "seed_sweep_baseline_qd_seed42",
   "default_field_key": "slip_m",
+  "field_allowlist": [
+    "slip_m",
+    "slip_rate_m_per_s",
+    "a",
+    "b",
+    "D_c_m",
+    "tau_elastic_pa",
+    "tau_rsf_pa",
+    "aging_residual",
+    "theta_s"
+  ],
+  "field_overrides": {
+    "slip_rate_m_per_s": {
+      "label": "V"
+    },
+    "D_c_m": {
+      "label": "Dc"
+    },
+    "tau_elastic_pa": {
+      "label": "Tau elastic"
+    },
+    "tau_rsf_pa": {
+      "label": "Tau RSF"
+    },
+    "aging_residual": {
+      "label": "Aging law"
+    },
+    "theta_s": {
+      "label": "RSF"
+    }
+  },
   "models": [
     {
-      "key": "best_sweep",
-      "label": "Best Sweep",
-      "snapshot_keys": [
-        "2020-01-01",
-        "2020-09-01",
-        "2021-05-01",
-        "2022-01-01",
-        "2022-09-01",
-        "2023-05-01",
-        "2024-01-01",
-        "2024-12-31"
-      ]
+      "key": "seed_sweep_baseline_qd_seed42",
+      "label": "baseline_qd_seed42",
+      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
     },
     {
-      "key": "ab_prior",
-      "label": "a-b Prior",
-      "snapshot_keys": [
-        "2020-01-01",
-        "2020-09-01",
-        "2021-05-01",
-        "2022-01-01",
-        "2022-09-01",
-        "2023-05-01",
-        "2024-01-01",
-        "2024-12-31"
-      ]
+      "key": "seed_sweep_baseline_seed42",
+      "label": "baseline_seed42",
+      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
     },
     {
-      "key": "dc_prior",
-      "label": "Dc Prior",
-      "snapshot_keys": [
-        "2020-01-01",
-        "2020-09-01",
-        "2021-05-01",
-        "2022-01-01",
-        "2022-09-01",
-        "2023-05-01",
-        "2024-01-01",
-        "2024-12-31"
-      ]
+      "key": "seed_sweep_baseline_seed154",
+      "label": "baseline_seed154",
+      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
     },
     {
-      "key": "aging_run_009",
-      "label": "Aging Run 009",
-      "snapshot_keys": [
-        "2020-01-01",
-        "2020-09-01",
-        "2021-05-01",
-        "2022-01-01",
-        "2022-09-01",
-        "2023-05-01",
-        "2024-01-01",
-        "2024-12-31"
-      ]
+      "key": "seed_sweep_baseline_seed256",
+      "label": "baseline_seed256",
+      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
+    },
+    {
+      "key": "seed_sweep_baseline_seed7",
+      "label": "baseline_seed7",
+      "snapshot_keys": ["2000-01-01", "2020-01-01", "2022-01-01", "2024-01-01", "2025-12-31"]
     }
   ]
 }
-

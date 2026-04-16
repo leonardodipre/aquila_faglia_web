@@ -2,7 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { ColorLegend } from "../components/ColorLegend";
 import { FaultScene, type ViewPreset } from "../components/FaultScene";
 import { MetricCard } from "../components/MetricCard";
-import { loadFaultPatches, loadModelDetail, loadModels, loadModelSnapshot, loadStations } from "../lib/api";
+import {
+  loadFaultPatches,
+  loadFaultTrace,
+  loadModelDetail,
+  loadModels,
+  loadModelSnapshot,
+  loadStations,
+} from "../lib/api";
 import { formatCompactNumber, formatDateLabel, formatScientific } from "../lib/format";
 import type {
   FaultPatchesData,
@@ -15,6 +22,7 @@ import type {
 export function ModelsPage() {
   const [modelsPayload, setModelsPayload] = useState<ModelsResponse | null>(null);
   const [faultPatches, setFaultPatches] = useState<FaultPatchesData | null>(null);
+  const [faultTrace, setFaultTrace] = useState<GeoJSON.FeatureCollection | null>(null);
   const [stations, setStations] = useState<StationSummary[]>([]);
   const [selectedModelKey, setSelectedModelKey] = useState("");
   const [modelDetail, setModelDetail] = useState<ModelDetail | null>(null);
@@ -27,10 +35,11 @@ export function ModelsPage() {
   const [snapshotLoading, setSnapshotLoading] = useState(false);
 
   useEffect(() => {
-    void Promise.all([loadModels(), loadFaultPatches(), loadStations()]).then(
-      ([modelsData, faultData, stationsData]) => {
+    void Promise.all([loadModels(), loadFaultPatches(), loadFaultTrace(), loadStations()]).then(
+      ([modelsData, faultData, faultTraceData, stationsData]) => {
         setModelsPayload(modelsData);
         setFaultPatches(faultData);
+        setFaultTrace(faultTraceData);
         setStations(stationsData.stations);
         setSelectedModelKey(modelsData.default_model_key);
       },
@@ -87,10 +96,10 @@ export function ModelsPage() {
       <section className="hero-panel rise">
         <div className="hero-copy">
           <p className="eyebrow">Modelli PINN</p>
-          <h2>Vista 3D semplificata della faglia con campi fisici selezionabili</h2>
+          <h2>Vista 3D della faglia con mesh reale e campi fisici selezionabili</h2>
           <p>
-            La scena mantiene mesh di faglia, colorazione per patch, overlay stazioni GNSS e
-            selezione interattiva, ma rimuove texture e componenti scenici pesanti.
+            Viewer 3D basato sulla web app di riferimento: mesh triangolare reale, stazioni GNSS,
+            overlay della superficie di faglia e navigazione top/oblique.
           </p>
         </div>
 
@@ -98,12 +107,12 @@ export function ModelsPage() {
           <MetricCard
             label="Modelli"
             value={modelsPayload ? formatCompactNumber(modelsPayload.models.length, 0) : "…"}
-            hint="allowlist definita da config/curation.json"
+            hint="checkpoint seed sweep curati"
           />
           <MetricCard
             label="Snapshot modello"
             value={modelDetail ? formatCompactNumber(modelDetail.snapshot_count, 0) : "…"}
-            hint="subset curato per ogni checkpoint"
+            hint="snapshot ridotti per i 5 modelli"
           />
           <MetricCard
             label="Campi fisici"
@@ -228,6 +237,7 @@ export function ModelsPage() {
           {faultPatches && modelDetail && fieldMeta ? (
             <FaultScene
               fault={faultPatches}
+              faultTrace={faultTrace}
               stations={stations}
               fieldMeta={fieldMeta}
               fieldValues={fieldValues}
@@ -298,4 +308,3 @@ export function ModelsPage() {
     </section>
   );
 }
-

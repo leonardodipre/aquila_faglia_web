@@ -67,6 +67,8 @@ def relative_manifest_path(path: Path) -> str:
 
 def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: Path) -> dict[str, Any]:
     config = load_json(config_path)
+    field_allowlist = config.get("field_allowlist")
+    field_overrides = config.get("field_overrides", {})
     source_catalog = load_json(source_data_dir / "models" / "index.json")
     stations_payload = load_json(source_data_dir / "stations.json")
     fault_trace = load_json(source_data_dir / "fault.geojson")
@@ -108,10 +110,30 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
         source_model = select_model_entry(source_catalog, model_key)
         source_index = load_json(source_data_dir / "model_snapshots" / model_key / "index.json")
         field_keys = list(source_index["fields"].keys())
+        if field_allowlist:
+            missing_fields = [field_key for field_key in field_allowlist if field_key not in source_index["fields"]]
+            if missing_fields:
+                raise KeyError(f"Fields {missing_fields} are not available for model '{model_key}'.")
+            field_keys = [field_key for field_key in field_allowlist if field_key in source_index["fields"]]
         if config["default_field_key"] not in field_keys:
             raise KeyError(
                 f"Default field '{config['default_field_key']}' is not available for model '{model_key}'."
             )
+
+        curated_fields = {}
+        for field_key in field_keys:
+            curated_fields[field_key] = {
+                **source_index["fields"][field_key],
+                **field_overrides.get(field_key, {}),
+            }
+
+        curated_static_fields = None
+        if source_index.get("static_fields"):
+            curated_static_fields = {
+                field_key: source_index["static_fields"][field_key]
+                for field_key in field_keys
+                if field_key in source_index["static_fields"]
+            }
 
         snapshots_by_key = {snapshot["date_key"]: snapshot for snapshot in source_index["snapshots"]}
         selected_snapshots = []
@@ -122,9 +144,17 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
             source_snapshot_path = source_data_dir / "model_snapshots" / model_key / f"{snapshot_key}.json"
             if not source_snapshot_path.exists():
                 raise FileNotFoundError(f"Missing snapshot file '{source_snapshot_path}'.")
+            snapshot_payload = load_json(source_snapshot_path)
             write_json(
                 output_dir / "model_snapshots" / model_key / f"{snapshot_key}.json",
-                load_json(source_snapshot_path),
+                {
+                    **snapshot_payload,
+                    "fields": {
+                        field_key: snapshot_payload["fields"][field_key]
+                        for field_key in field_keys
+                        if field_key in snapshot_payload["fields"]
+                    },
+                },
             )
             selected_snapshots.append(
                 {
@@ -140,8 +170,8 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
                 "model_label": model_config.get("label") or source_model["label"],
                 "snapshot_count": len(selected_snapshots),
             },
-            "fields": source_index["fields"],
-            "static_fields": source_index.get("static_fields"),
+            "fields": curated_fields,
+            "static_fields": curated_static_fields,
             "snapshots": selected_snapshots,
         }
         write_json(output_dir / "model_snapshots" / model_key / "index.json", curated_index)
