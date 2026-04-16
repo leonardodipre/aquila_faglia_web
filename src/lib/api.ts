@@ -20,6 +20,17 @@ interface StaticStationsPayload {
   stations: StationSummary[];
 }
 
+interface StaticModelIndexPayload {
+  meta?: {
+    model_key?: string;
+    model_label?: string;
+    checkpoint?: string | null;
+  };
+  fields: ModelDetail["fields"];
+  static_fields?: ModelDetail["static_fields"];
+  snapshots: ModelDetail["snapshots"];
+}
+
 function normalizeTimeseriesPath(path: string) {
   if (path.startsWith("/data/")) {
     return path.slice("/data/".length);
@@ -92,8 +103,26 @@ export function loadModels() {
   return fetchJson<ModelsResponse>(staticPath("models/index.json"));
 }
 
-export function loadModelDetail(modelKey: string) {
-  return fetchJson<ModelDetail>(staticPath(`model_snapshots/${modelKey}/index.json`));
+export async function loadModelDetail(modelKey: string) {
+  const [modelsPayload, modelIndex] = await Promise.all([
+    loadModels(),
+    fetchJson<StaticModelIndexPayload>(staticPath(`model_snapshots/${modelKey}/index.json`)),
+  ]);
+  const modelSummary = modelsPayload.models.find((model) => model.key === modelKey);
+
+  if (!modelSummary) {
+    throw new Error(`Model '${modelKey}' not found in catalog.`);
+  }
+
+  return {
+    ...modelSummary,
+    label: modelIndex.meta?.model_label ?? modelSummary.label,
+    checkpoint: modelIndex.meta?.checkpoint ?? modelSummary.checkpoint,
+    default_field_key: modelsPayload.default_field_key,
+    fields: modelIndex.fields,
+    static_fields: modelIndex.static_fields,
+    snapshots: modelIndex.snapshots,
+  } satisfies ModelDetail;
 }
 
 export function loadModelSnapshot(modelKey: string, snapshotKey: string) {
