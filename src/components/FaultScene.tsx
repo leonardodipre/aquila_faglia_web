@@ -1,7 +1,4 @@
-import { useEffect, useMemo } from "react";
-import { Canvas, ThreeEvent, useThree } from "@react-three/fiber";
-import { Line } from "@react-three/drei";
-import { BufferAttribute, BufferGeometry, DoubleSide } from "three";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { colorForValue } from "../lib/colors";
 import type { FaultPatch, FaultPatchesData, SnapshotFieldMeta, StationSummary } from "../lib/types";
 
@@ -10,6 +7,10 @@ const STATION_COLORS: Record<string, string> = {
   modified: "#d97706",
   acc_test: "#be123c",
 };
+
+const VIEWPORT_WIDTH = 1000;
+const VIEWPORT_HEIGHT = 700;
+const PADDING = 60;
 
 export type ViewPreset = "top" | "oblique";
 
@@ -25,143 +26,70 @@ interface FaultSceneProps {
   onSelectPatch: (patchId: number | null) => void;
 }
 
-function sceneExtent(fault: FaultPatchesData, stations: StationSummary[]) {
-  const values: number[] = [];
-  fault.patches.forEach((patch) => {
-    values.push(Math.abs(patch.center_local_xyz_m[0]), Math.abs(patch.center_local_xyz_m[2]));
-  });
-  stations.forEach((station) => {
-    if (station.local_xyz_m) {
-      values.push(Math.abs(station.local_xyz_m[0]), Math.abs(station.local_xyz_m[2]));
-    }
-  });
-  return Math.max(...values, 45000) * 2.2;
+interface Bounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
 }
 
-function CameraPresetController({
-  preset,
-  extent,
-}: {
-  preset: ViewPreset;
-  extent: number;
-}) {
-  const { camera } = useThree();
-
-  useEffect(() => {
-    if (preset === "top") {
-      camera.position.set(0, extent * 1.05, 0.01);
-      camera.up.set(0, 0, 1);
-    } else {
-      camera.position.set(-extent * 0.34, extent * 0.52, extent * 0.44);
-      camera.up.set(0, 1, 0);
-    }
-
-    camera.lookAt(0, -4000, 0);
-    camera.updateProjectionMatrix();
-  }, [camera, extent, preset]);
-
-  return null;
-}
-
-function FaultMesh({
-  fault,
-  fieldMeta,
-  fieldValues,
-  onHoverPatch,
-  onSelectPatch,
-}: {
-  fault: FaultPatchesData;
-  fieldMeta: SnapshotFieldMeta;
-  fieldValues: number[];
-  onHoverPatch: (patchId: number | null) => void;
-  onSelectPatch: (patchId: number | null) => void;
-}) {
-  const geometry = useMemo(() => {
-    const positions: number[] = [];
-    const colors: number[] = [];
-
-    fault.patches.forEach((patch, patchIndex) => {
-      const value = fieldValues[patchIndex] ?? 0;
-      const hex = colorForValue(value, fieldMeta).replace("#", "");
-      const rgb = [
-        Number.parseInt(hex.slice(0, 2), 16) / 255,
-        Number.parseInt(hex.slice(2, 4), 16) / 255,
-        Number.parseInt(hex.slice(4, 6), 16) / 255,
-      ];
-
-      patch.triangles_local_xyz_m.forEach((triangle) => {
-        triangle.forEach(([x, y, z]) => {
-          positions.push(x, y, z);
-          colors.push(rgb[0], rgb[1], rgb[2]);
-        });
-      });
-    });
-
-    const nextGeometry = new BufferGeometry();
-    nextGeometry.setAttribute("position", new BufferAttribute(new Float32Array(positions), 3));
-    nextGeometry.setAttribute("color", new BufferAttribute(new Float32Array(colors), 3));
-    nextGeometry.computeVertexNormals();
-    return nextGeometry;
-  }, [fault, fieldMeta, fieldValues]);
-
-  const resolvePatchId = (event: ThreeEvent<PointerEvent>) => {
-    if (event.faceIndex == null) {
-      return null;
-    }
-    return Math.floor(event.faceIndex / 2);
-  };
-
-  return (
-    <mesh
-      geometry={geometry}
-      onClick={(event) => {
-        event.stopPropagation();
-        onSelectPatch(resolvePatchId(event));
-      }}
-    >
-      <meshStandardMaterial vertexColors side={DoubleSide} metalness={0.1} roughness={0.78} />
-    </mesh>
-  );
-}
-
-function PatchOutline({ patch, color }: { patch: FaultPatch; color: string }) {
-  const points = useMemo(() => {
-    const corners = patch.corners_local_xyz_m.map(([x, y, z]) => [x, y + 60, z] as [number, number, number]);
-    return [...corners, corners[0]];
-  }, [patch]);
-
-  return <Line points={points} color={color} lineWidth={2.2} />;
-}
-
-function StationCloud({ stations }: { stations: StationSummary[] }) {
-  return (
-    <group>
-      {stations.map((station) => {
-        if (!station.local_xyz_m) {
-          return null;
-        }
-        const [x, y, z] = station.local_xyz_m;
-        return (
-          <mesh
-            key={station.station_id}
-            position={[x, Math.max(y, 0) + 180, z]}
-            scale={520}
-          >
-            <sphereGeometry args={[1, 10, 10]} />
-            <meshStandardMaterial color={STATION_COLORS[station.category] ?? "#475569"} />
-          </mesh>
-        );
-      })}
-    </group>
-  );
-}
-
-function SurfaceTrace({ fault }: { fault: FaultPatchesData }) {
-  if (!fault.surface_trace_local_xyz_m || fault.surface_trace_local_xyz_m.length < 2) {
-    return null;
+function projectPoint([x, , z]: [number, number, number], viewPreset: ViewPreset): [number, number] {
+  if (viewPreset === "top") {
+    return [x, -z];
   }
-  const points = fault.surface_trace_local_xyz_m.map(([x, y, z]) => [x, y + 120, z] as [number, number, number]);
-  return <Line points={points} color="#f59e0b" lineWidth={2.4} />;
+
+  return [x, -z * 0.82];
+}
+
+function computeBounds(fault: FaultPatchesData, stations: StationSummary[], viewPreset: ViewPreset): Bounds {
+  const xs: number[] = [];
+  const ys: number[] = [];
+
+  fault.patches.forEach((patch) => {
+    patch.corners_local_xyz_m.forEach((corner) => {
+      const [x, y] = projectPoint(corner, viewPreset);
+      xs.push(x);
+      ys.push(y);
+    });
+  });
+
+  stations.forEach((station) => {
+    if (!station.local_xyz_m) {
+      return;
+    }
+    const [x, y] = projectPoint(station.local_xyz_m, viewPreset);
+    xs.push(x);
+    ys.push(y);
+  });
+
+  if (fault.surface_trace_local_xyz_m) {
+    fault.surface_trace_local_xyz_m.forEach((point) => {
+      const [x, y] = projectPoint(point, viewPreset);
+      xs.push(x);
+      ys.push(y);
+    });
+  }
+
+  if (xs.length === 0 || ys.length === 0) {
+    return { minX: -1, maxX: 1, minY: -1, maxY: 1 };
+  }
+
+  return {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minY: Math.min(...ys),
+    maxY: Math.max(...ys),
+  };
+}
+
+function fitScale(bounds: Bounds) {
+  const width = Math.max(bounds.maxX - bounds.minX, 1);
+  const height = Math.max(bounds.maxY - bounds.minY, 1);
+  return Math.min((VIEWPORT_WIDTH - PADDING * 2) / width, (VIEWPORT_HEIGHT - PADDING * 2) / height);
+}
+
+function polygonPoints(patch: FaultPatch, viewPreset: ViewPreset) {
+  return patch.corners_local_xyz_m.map((corner) => projectPoint(corner, viewPreset));
 }
 
 export function FaultScene({
@@ -175,37 +103,149 @@ export function FaultScene({
   onHoverPatch,
   onSelectPatch,
 }: FaultSceneProps) {
-  const extent = useMemo(() => sceneExtent(fault, stations), [fault, stations]);
-  const hoveredPatch = hoveredPatchId != null ? fault.patches[hoveredPatchId] : null;
-  const selectedPatch = selectedPatchId != null ? fault.patches[selectedPatchId] : null;
-  const cameraConfig = useMemo(
-    () => ({ position: [0, extent * 1.05, 0.01] as [number, number, number], fov: 38, near: 10, far: extent * 10 }),
-    [extent],
+  const svgRef = useRef<SVGSVGElement>(null);
+  const dragRef = useRef<{ x: number; y: number } | null>(null);
+  const bounds = useMemo(() => computeBounds(fault, stations, viewPreset), [fault, stations, viewPreset]);
+  const baseScale = useMemo(() => fitScale(bounds), [bounds]);
+  const baseCenter = useMemo(
+    () => ({
+      x: (bounds.minX + bounds.maxX) / 2,
+      y: (bounds.minY + bounds.maxY) / 2,
+    }),
+    [bounds],
+  );
+
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, [viewPreset, fault]);
+
+  const scale = baseScale * zoom;
+
+  const toScreen = (point: [number, number]) => ({
+    x: (point[0] - baseCenter.x) * scale + VIEWPORT_WIDTH / 2 + pan.x,
+    y: (point[1] - baseCenter.y) * scale + VIEWPORT_HEIGHT / 2 + pan.y,
+  });
+
+  const patchPolygons = useMemo(
+    () =>
+      fault.patches.map((patch, index) => {
+        const points = polygonPoints(patch, viewPreset);
+        const screenPoints = points.map(toScreen);
+        return {
+          patch,
+          value: fieldValues[index] ?? 0,
+          points: screenPoints.map(({ x, y }) => `${x},${y}`).join(" "),
+          center: toScreen(projectPoint(patch.center_local_xyz_m, viewPreset)),
+        };
+      }),
+    [fault.patches, fieldValues, scale, pan, baseCenter, viewPreset],
+  );
+
+  const tracePoints = useMemo(() => {
+    if (!fault.surface_trace_local_xyz_m || fault.surface_trace_local_xyz_m.length < 2) {
+      return "";
+    }
+    return fault.surface_trace_local_xyz_m
+      .map((point) => {
+        const projected = toScreen(projectPoint(point, viewPreset));
+        return `${projected.x},${projected.y}`;
+      })
+      .join(" ");
+  }, [fault.surface_trace_local_xyz_m, scale, pan, baseCenter, viewPreset]);
+
+  const stationPoints = useMemo(
+    () =>
+      stations
+        .filter((station) => station.local_xyz_m)
+        .map((station) => ({
+          station,
+          point: toScreen(projectPoint(station.local_xyz_m as [number, number, number], viewPreset)),
+        })),
+    [stations, scale, pan, baseCenter, viewPreset],
   );
 
   return (
-    <Canvas
-      camera={cameraConfig}
+    <svg
+      ref={svgRef}
+      data-testid="fault-canvas"
       className="fault-canvas"
+      viewBox={`0 0 ${VIEWPORT_WIDTH} ${VIEWPORT_HEIGHT}`}
+      onMouseLeave={() => {
+        dragRef.current = null;
+        onHoverPatch(null);
+      }}
+      onMouseDown={(event) => {
+        dragRef.current = { x: event.clientX, y: event.clientY };
+      }}
+      onMouseMove={(event) => {
+        if (!dragRef.current) {
+          return;
+        }
+
+        const dx = event.clientX - dragRef.current.x;
+        const dy = event.clientY - dragRef.current.y;
+        dragRef.current = { x: event.clientX, y: event.clientY };
+        setPan((current) => ({ x: current.x + dx, y: current.y + dy }));
+      }}
+      onMouseUp={() => {
+        dragRef.current = null;
+      }}
+      onWheel={(event) => {
+        event.preventDefault();
+        const direction = event.deltaY > 0 ? 0.92 : 1.08;
+        setZoom((current) => Math.min(Math.max(current * direction, 0.6), 8));
+      }}
+      role="img"
+      aria-label="2D fault map"
     >
-      <color attach="background" args={["#f4f2eb"]} />
-      <ambientLight intensity={1.2} />
-      <directionalLight position={[0, extent, extent]} intensity={1.3} />
-      <directionalLight position={[-extent, extent * 0.4, -extent * 0.2]} intensity={0.6} />
-      <CameraPresetController preset={viewPreset} extent={extent} />
-      <FaultMesh
-        fault={fault}
-        fieldMeta={fieldMeta}
-        fieldValues={fieldValues}
-        onHoverPatch={onHoverPatch}
-        onSelectPatch={onSelectPatch}
-      />
-      <StationCloud stations={stations} />
-      <SurfaceTrace fault={fault} />
-      {hoveredPatch && (!selectedPatch || selectedPatch.id !== hoveredPatch.id) ? (
-        <PatchOutline patch={hoveredPatch} color="#f97316" />
-      ) : null}
-      {selectedPatch ? <PatchOutline patch={selectedPatch} color="#111827" /> : null}
-    </Canvas>
+      <rect x={0} y={0} width={VIEWPORT_WIDTH} height={VIEWPORT_HEIGHT} fill="#f4f2eb" />
+
+      <g>
+        {patchPolygons.map(({ patch, value, points }) => {
+          const isSelected = selectedPatchId === patch.id;
+          const isHovered = hoveredPatchId === patch.id;
+          return (
+            <polygon
+              key={patch.id}
+              points={points}
+              fill={colorForValue(value, fieldMeta)}
+              stroke={isSelected ? "#111827" : isHovered ? "#f97316" : "rgba(24, 33, 43, 0.18)"}
+              strokeWidth={isSelected ? 3 : isHovered ? 2.2 : 1}
+              vectorEffect="non-scaling-stroke"
+              onMouseEnter={() => onHoverPatch(patch.id)}
+              onMouseLeave={() => onHoverPatch(null)}
+              onClick={() => onSelectPatch(patch.id)}
+            />
+          );
+        })}
+
+        {tracePoints ? (
+          <polyline
+            points={tracePoints}
+            fill="none"
+            stroke="#f59e0b"
+            strokeWidth={3}
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : null}
+
+        {stationPoints.map(({ station, point }) => (
+          <circle
+            key={station.station_id}
+            cx={point.x}
+            cy={point.y}
+            r={5}
+            fill={STATION_COLORS[station.category] ?? "#475569"}
+            stroke="#fbfdff"
+            strokeWidth={1.5}
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+      </g>
+    </svg>
   );
 }
