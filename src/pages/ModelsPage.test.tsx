@@ -49,7 +49,7 @@ const stationsFixture = {
       coordinates_source: "source",
       is_fallback_coordinate: false,
       available_date_range: { start: "2020-01-01", end: "2024-12-31" },
-      timeseries_path: "/data/timeseries/AQUI00ITA.json",
+      timeseries_path: "timeseries/AQUI00ITA.json",
       sample_count: 4,
       source_file: "AQUI00ITA.csv",
     },
@@ -161,19 +161,19 @@ describe("ModelsPage", () => {
       const url = String(input);
       let payload: unknown = null;
 
-      if (url === "/api/models") {
+      if (url === "./models/index.json") {
         payload = modelsFixture;
-      } else if (url === "/api/fault/patches") {
+      } else if (url === "./fault_patches.json") {
         payload = faultFixture;
-      } else if (url === "/api/stations") {
+      } else if (url === "./stations.json") {
         payload = stationsFixture;
-      } else if (url === "/api/models/best_sweep") {
+      } else if (url === "./model_snapshots/best_sweep/index.json") {
         payload = makeDetail("best_sweep", "Best Sweep");
-      } else if (url === "/api/models/ab_prior") {
+      } else if (url === "./model_snapshots/ab_prior/index.json") {
         payload = makeDetail("ab_prior", "a-b Prior");
-      } else if (url === "/api/models/best_sweep/snapshots/2020-01-01") {
+      } else if (url === "./model_snapshots/best_sweep/2020-01-01.json") {
         payload = makeSnapshot(0.25);
-      } else if (url === "/api/models/ab_prior/snapshots/2020-01-01") {
+      } else if (url === "./model_snapshots/ab_prior/2020-01-01.json") {
         payload = makeSnapshot(0.55);
       }
 
@@ -208,8 +208,8 @@ describe("ModelsPage", () => {
     });
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("/api/models/ab_prior");
-      expect(global.fetch).toHaveBeenCalledWith("/api/models/ab_prior/snapshots/2020-01-01");
+      expect(global.fetch).toHaveBeenCalledWith("./model_snapshots/ab_prior/index.json");
+      expect(global.fetch).toHaveBeenCalledWith("./model_snapshots/ab_prior/2020-01-01.json");
     });
 
     expect(screen.getByLabelText("Modello")).toHaveValue("ab_prior");

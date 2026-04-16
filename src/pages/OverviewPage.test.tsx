@@ -47,7 +47,7 @@ const stationsFixture = {
       networks: "RING",
       distance_km_from_laquila: 0,
       available_date_range: { start: "2020-01-01", end: "2024-12-31" },
-      timeseries_path: "/data/timeseries/AQUI00ITA.json",
+      timeseries_path: "timeseries/AQUI00ITA.json",
       sample_count: 4,
       source_file: "AQUI00ITA.csv",
     },
@@ -66,7 +66,7 @@ const stationsFixture = {
       networks: "RING",
       distance_km_from_laquila: 12.4,
       available_date_range: { start: "2020-01-01", end: "2024-12-31" },
-      timeseries_path: "/data/timeseries/ACQU01ITA.json",
+      timeseries_path: "timeseries/ACQU01ITA.json",
       sample_count: 4,
       source_file: "ACQU01ITA.csv",
     },
@@ -106,15 +106,15 @@ describe("OverviewPage", () => {
       const url = String(input);
       let payload: unknown = null;
 
-      if (url === "/api/manifest") {
+      if (url === "./manifest.json") {
         payload = manifestFixture;
-      } else if (url === "/api/stations") {
+      } else if (url === "./stations.json") {
         payload = stationsFixture;
-      } else if (url === "/api/fault/trace") {
+      } else if (url === "./fault.geojson") {
         payload = faultFixture;
-      } else if (url === "/api/stations/AQUI00ITA/timeseries") {
+      } else if (url === "./timeseries/AQUI00ITA.json") {
         payload = makeSeries("AQUI00ITA");
-      } else if (url === "/api/stations/ACQU01ITA/timeseries") {
+      } else if (url === "./timeseries/ACQU01ITA.json") {
         payload = makeSeries("ACQU01ITA");
       }
 
@@ -140,7 +140,7 @@ describe("OverviewPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /ACQU01ITA/i }));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledWith("/api/stations/ACQU01ITA/timeseries");
+      expect(global.fetch).toHaveBeenCalledWith("./timeseries/ACQU01ITA.json");
     });
 
     expect(screen.getByRole("heading", { name: "ACQU01ITA" })).toBeInTheDocument();

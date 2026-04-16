@@ -58,6 +58,13 @@ def select_model_entry(source_catalog: dict[str, Any], model_key: str) -> dict[s
     raise KeyError(f"Model '{model_key}' not found in source catalog.")
 
 
+def relative_manifest_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT_DIR))
+    except ValueError:
+        return path.name
+
+
 def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: Path) -> dict[str, Any]:
     config = load_json(config_path)
     source_catalog = load_json(source_data_dir / "models" / "index.json")
@@ -70,7 +77,17 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
         raise KeyError(f"Default station '{config['default_station_id']}' is not present in the source dataset.")
 
     reset_output_dir(output_dir)
-    write_json(output_dir / "stations.json", stations_payload)
+    normalized_stations_payload = {
+        **stations_payload,
+        "stations": [
+            {
+                **station,
+                "timeseries_path": f"timeseries/{station['station_id']}.json",
+            }
+            for station in stations_payload["stations"]
+        ],
+    }
+    write_json(output_dir / "stations.json", normalized_stations_payload)
     write_json(output_dir / "fault.geojson", fault_trace)
     write_json(output_dir / "fault_patches.json", fault_patches)
 
@@ -174,8 +191,8 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
             "snapshots": total_snapshots,
         },
         "sources": {
-            "config_path": str(config_path.relative_to(ROOT_DIR)),
-            "source_data_dir": str(source_data_dir),
+            "config_path": relative_manifest_path(config_path),
+            "source_data_dir": relative_manifest_path(source_data_dir),
         },
     }
     write_json(output_dir / "manifest.json", manifest)

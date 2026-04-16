@@ -1,50 +1,58 @@
 # aquila_faglia_web
 
-Web app autonoma per:
+Web app per:
 - overview GNSS sull'Italia con selezione stazione e serie temporale
 - vista 3D della faglia di L'Aquila con modelli PINN curati
-- backend `FastAPI` che espone API JSON e serve il build del frontend
+- deploy statico su GitHub Pages
 
 ## Struttura
 
-- `backend/app`: API FastAPI
 - `src`: frontend React + Vite + TypeScript
-- `config/curation.json`: allowlist modelli/snapshot
-- `scripts/import_curated_assets.py`: importa i dati curati dal repo sorgente
-- `data`: dataset locale generato e servito dal backend
+- `data`: dataset locale versionato e copiato nel build statico
+- `config/curation.json`: allowlist modelli e snapshot
+- `scripts/import_curated_assets.py`: aggiorna il dataset curato dal repo sorgente
+- `backend/app`: API FastAPI opzionale
 
 ## Setup
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
 npm install
 python3 scripts/import_curated_assets.py
 ```
 
-## Sviluppo
-
-Terminale 1:
-
-```bash
-.venv/bin/uvicorn backend.app.main:app --reload
-```
-
-Terminale 2:
+## Sviluppo Frontend
 
 ```bash
 npm run dev
 ```
 
-Vite inoltra `/api` verso `http://127.0.0.1:8000`.
+Il frontend legge direttamente i JSON in `data/`, quindi per lo sviluppo UI non serve piu il proxy `/api`.
 
-## Build
+## Build Statico
 
 ```bash
 npm run build
 ```
 
-Il backend serve il contenuto di `dist/` quando il build è presente.
+Il build copia il dataset dentro `dist/` e usa `HashRouter`, quindi funziona su GitHub Pages anche sotto il path del repository.
+
+## GitHub Pages
+
+Il workflow [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml) pubblica `dist/` su GitHub Pages a ogni push su `main`.
+
+In GitHub:
+- vai in `Settings > Pages`
+- imposta `Source` su `GitHub Actions`
+
+## Backend Opzionale
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/uvicorn backend.app.main:app --reload
+```
+
+Il backend resta disponibile se vuoi continuare a esporre le API JSON o servire il build localmente.
 
 ## Test
 
