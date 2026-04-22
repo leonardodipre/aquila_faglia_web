@@ -1552,20 +1552,9 @@ export function ModelsPage() {
                 <span className="meta-label">Aggregazione</span>
                 <strong data-testid="timeseries-aggregation-mode">{aggregationLabel}</strong>
               </div>
-              <div className="compare-series-meta-item">
-                <span className="meta-label">Spearman rho (spatial NxN)</span>
-                <strong data-testid="timeseries-spearman-rho">
-                  {spearmanSpatialRho != null ? formatCompactNumber(spearmanSpatialRho, 4) : "n/a"}
-                </strong>
-              </div>
-              <div className="compare-series-meta-item">
-                <span className="meta-label">Spatial pairs</span>
-                <strong data-testid="timeseries-spearman-count">{spearmanSpatialPairCount}</strong>
-              </div>
               <p className="compare-series-group-note">
-                La parte spaziale confronta le patch corrispondenti nel blocco selezionato allo snapshot attivo.
-                Prima si aggrega il blocco in un singolo valore per patch, poi si calcola Spearman sulle coppie
-                validate Original/Validation.
+                La parte spaziale definisce la finestra di patch e il tipo di aggregazione usato per i valori del
+                blocco.
               </p>
             </div>
           </div>
@@ -1573,32 +1562,40 @@ export function ModelsPage() {
           <div className="compare-series-meta-group">
             <div className="compare-series-meta-group-head">
               <p className="eyebrow">Parte temporale</p>
-              <h4>Serie aggregate sui snapshot condivisi</h4>
+              <h4>Spearman micro e macro</h4>
             </div>
             <div className="compare-series-meta-group-body">
-              <div className="compare-series-meta-item">
-                <span className="meta-label">Spearman rho (temporal)</span>
-                <strong data-testid="timeseries-spearman-rho-macro">
-                  {spearmanTemporalRho != null ? formatCompactNumber(spearmanTemporalRho, 4) : "n/a"}
-                </strong>
+              <div className="compare-series-subgroup">
+                <div className="compare-series-meta-item">
+                  <span className="meta-label">Spearman rho (spatial NxN)</span>
+                  <strong data-testid="timeseries-spearman-rho">
+                    {spearmanSpatialRho != null ? formatCompactNumber(spearmanSpatialRho, 4) : "n/a"}
+                  </strong>
+                </div>
+                <div className="compare-series-meta-item">
+                  <span className="meta-label">Spatial pairs</span>
+                  <strong data-testid="timeseries-spearman-count">{spearmanSpatialPairCount}</strong>
+                </div>
               </div>
-              <div className="compare-series-meta-item">
-                <span className="meta-label">Temporal pairs</span>
-                <strong data-testid="timeseries-spearman-count-macro">{spearmanTemporalPairCount}</strong>
+              <div className="compare-series-subgroup">
+                <div className="compare-series-meta-item">
+                  <span className="meta-label">Spearman rho (temporal)</span>
+                  <strong data-testid="timeseries-spearman-rho-macro">
+                    {spearmanTemporalRho != null ? formatCompactNumber(spearmanTemporalRho, 4) : "n/a"}
+                  </strong>
+                </div>
+                <div className="compare-series-meta-item">
+                  <span className="meta-label">Temporal pairs</span>
+                  <strong data-testid="timeseries-spearman-count-macro">{spearmanTemporalPairCount}</strong>
+                </div>
               </div>
               <p className="compare-series-group-note">
-                La parte temporale usa tutte le coppie patch x snapshot del blocco selezionato. Questo rende la
-                misura più robusta rispetto alla sola mini patch e racconta come evolve il campo nel tempo, non solo
-                in un singolo istante.
+                Micro usa il blocco nello snapshot attivo. Macro usa tutte le coppie patch x snapshot del blocco
+                selezionato.
               </p>
             </div>
           </div>
         </div>
-        <p className="compare-series-footnote">
-          Spearman micro: correlazione spaziale patch-by-patch nel blocco NxN allo snapshot attivo. Spearman macro:
-          correlazione sulle coppie patch x snapshot del blocco selezionato. Se le coppie valide sono meno di 3, il
-          valore è mostrato come n/a.
-        </p>
       </section>
 
       <section className="panel rise patch-panel compare-inspector-panel">

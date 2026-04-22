@@ -402,6 +402,12 @@ select {
   gap: 8px;
 }
 
+.compare-series-subgroup {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+}
+
 .compare-series-group-note {
   margin: 2px 0 0;
   color: var(--text-muted);
