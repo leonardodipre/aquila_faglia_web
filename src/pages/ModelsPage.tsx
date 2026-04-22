@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { ColorLegend } from "../components/ColorLegend";
-import { MetricCard } from "../components/MetricCard";
 import {
   loadValidationGeometry,
   loadValidationModelCatalog,
@@ -504,6 +503,8 @@ export function ModelsPage() {
   }, []);
 
   const familyKeys = useMemo(() => Object.keys(FAMILY_COMPARE_CONFIG) as FamilyKey[], []);
+  const selectedFamilyInfo = FAMILY_COMPARE_CONFIG[selectedFamily];
+  const selectedEpochLabel = findEpochOption(selectedEpoch).label;
 
   const selectedPair = useMemo(() => {
     if (!catalog) {
@@ -715,20 +716,19 @@ export function ModelsPage() {
             allineata in lunghezza usando il riferimento di L'Aquila.
           </p>
         </div>
-
-        <div className="metric-grid">
-          <MetricCard label="Famiglie" value={formatCompactNumber(familyKeys.length, 0)} hint="V1, V2, V3, V4" />
-          <MetricCard label="Epoche" value={formatCompactNumber(EPOCH_OPTIONS.length, 0)} hint="finale + step 10k..50k" />
-          <MetricCard
-            label="Campi condivisi"
-            value={formatCompactNumber(sharedFieldKeys.length, 0)}
-            hint="intersezione Original/Validation"
-          />
-          <MetricCard
-            label="Snapshot condivisi"
-            value={formatCompactNumber(sharedSnapshots.length, 0)}
-            hint="selettore unico data"
-          />
+        <div className="compare-run-summary">
+          <p>
+            Puoi selezionare la run <strong>V1-V4</strong> dai controlli. Run attiva:{" "}
+            <strong>
+              {selectedFamily} ({selectedFamilyInfo.title})
+            </strong>{" "}
+            | Epoca: <strong>{selectedEpochLabel}</strong>
+          </p>
+          <p>
+            Seed: <strong>{selectedFamilyInfo.seed}</strong> | Regime: <strong>{selectedFamilyInfo.regime}</strong>
+          </p>
+          <p>{selectedFamilyInfo.summary}</p>
+          <p>{selectedFamilyInfo.tauConfig}</p>
         </div>
       </section>
 
@@ -772,30 +772,6 @@ export function ModelsPage() {
             ))}
           </select>
         </label>
-
-        <div className="family-info-block">
-          <span className="meta-label">Info run V1-V4 (seed + configurazione)</span>
-          <div className="family-info-grid">
-            {familyKeys.map((familyKey) => {
-              const family = FAMILY_COMPARE_CONFIG[familyKey];
-              const active = selectedFamily === familyKey;
-              return (
-                <article
-                  key={familyKey}
-                  className={active ? "family-info-card family-info-card-active" : "family-info-card"}
-                >
-                  <h4>{familyKey}</h4>
-                  <p className="family-info-title">{family.title}</p>
-                  <p>
-                    Seed: <strong>{family.seed}</strong> | Regime: <strong>{family.regime}</strong>
-                  </p>
-                  <p>{family.summary}</p>
-                  <p>{family.tauConfig}</p>
-                </article>
-              );
-            })}
-          </div>
-        </div>
 
         <label className="field-group">
           <span>Campo fisico</span>
