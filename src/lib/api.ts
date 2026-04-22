@@ -17,6 +17,18 @@ const jsonCache = new Map<string, Promise<unknown>>();
 const staticBase = import.meta.env.BASE_URL;
 const staticPath = (path: string) => `${staticBase}${path}`;
 
+function normalizeStaticRelativePath(path: string) {
+  return path.startsWith("/") ? path.slice(1) : path;
+}
+
+function withDataPrefixVariants(path: string) {
+  const normalized = normalizeStaticRelativePath(path);
+  if (normalized.startsWith("data/")) {
+    return [normalized, normalized.slice("data/".length)];
+  }
+  return [normalized, `data/${normalized}`];
+}
+
 interface StaticStationsPayload {
   default_station_id?: string;
   summary?: StationsResponse["summary"];
@@ -66,6 +78,24 @@ async function fetchJson<T>(path: string): Promise<T> {
   });
   jsonCache.set(path, pending);
   return pending;
+}
+
+async function fetchJsonWithFallback<T>(paths: string[]) {
+  const uniquePaths = [...new Set(paths)];
+  let lastError: unknown = null;
+
+  for (const path of uniquePaths) {
+    try {
+      return await fetchJson<T>(path);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError instanceof Error) {
+    throw lastError;
+  }
+  throw new Error(`Failed to fetch any candidate path: ${uniquePaths.join(", ")}`);
 }
 
 export function loadManifest() {
@@ -134,17 +164,27 @@ export function loadModelSnapshot(modelKey: string, snapshotKey: string) {
 }
 
 export function loadValidationModelCatalog() {
-  return fetchJson<ValidationModelCatalog>(staticPath("validation/models/index.json"));
+  const candidates = withDataPrefixVariants("validation/models/index.json").map((path) => staticPath(path));
+  return fetchJsonWithFallback<ValidationModelCatalog>(candidates);
 }
 
 export function loadValidationGeometry(modelKey: string) {
-  return fetchJson<ValidationGeometryData>(staticPath(`validation/models/${modelKey}/geometry.json`));
+  const candidates = withDataPrefixVariants(`validation/models/${modelKey}/geometry.json`).map((path) =>
+    staticPath(path),
+  );
+  return fetchJsonWithFallback<ValidationGeometryData>(candidates);
 }
 
 export function loadValidationSnapshotIndex(modelKey: string) {
-  return fetchJson<ValidationSnapshotIndex>(staticPath(`validation/models/${modelKey}/index.json`));
+  const candidates = withDataPrefixVariants(`validation/models/${modelKey}/index.json`).map((path) =>
+    staticPath(path),
+  );
+  return fetchJsonWithFallback<ValidationSnapshotIndex>(candidates);
 }
 
 export function loadValidationSnapshot(modelKey: string, snapshotKey: string) {
-  return fetchJson<ValidationSnapshotData>(staticPath(`validation/models/${modelKey}/snapshots/${snapshotKey}.json`));
+  const candidates = withDataPrefixVariants(`validation/models/${modelKey}/snapshots/${snapshotKey}.json`).map(
+    (path) => staticPath(path),
+  );
+  return fetchJsonWithFallback<ValidationSnapshotData>(candidates);
 }
