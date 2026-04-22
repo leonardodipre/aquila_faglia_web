@@ -1168,16 +1168,53 @@ export function ModelsPage() {
     return { validationBlockValues, originalBlockValues };
   }, [originalValues, originalWindowPatchIds, patchMappings, validationValues]);
 
-  const spearmanSampleCount = spearmanSpatialInputs.originalBlockValues.length;
-  const spearmanRho = useMemo(() => {
-    if (spearmanSampleCount < 3) {
+  const spearmanSpatialPairCount = spearmanSpatialInputs.originalBlockValues.length;
+  const spearmanSpatialRho = useMemo(() => {
+    if (spearmanSpatialPairCount < 3) {
       return null;
     }
     return computeSpearmanCorrelation(
       spearmanSpatialInputs.validationBlockValues,
       spearmanSpatialInputs.originalBlockValues,
     );
-  }, [spearmanSampleCount, spearmanSpatialInputs.originalBlockValues, spearmanSpatialInputs.validationBlockValues]);
+  }, [
+    spearmanSpatialPairCount,
+    spearmanSpatialInputs.originalBlockValues,
+    spearmanSpatialInputs.validationBlockValues,
+  ]);
+
+  const spearmanTemporalInputs = useMemo(() => {
+    const validationTemporalValues: number[] = [];
+    const originalTemporalValues: number[] = [];
+    const pairCount = Math.min(validationPatchSeries.length, originalPatchSeries.length);
+
+    for (let pairIndex = 0; pairIndex < pairCount; pairIndex += 1) {
+      const validationValue = validationPatchSeries[pairIndex];
+      const originalValue = originalPatchSeries[pairIndex];
+      if (!Number.isFinite(validationValue) || !Number.isFinite(originalValue)) {
+        continue;
+      }
+      validationTemporalValues.push(validationValue);
+      originalTemporalValues.push(originalValue);
+    }
+
+    return { validationTemporalValues, originalTemporalValues };
+  }, [originalPatchSeries, validationPatchSeries]);
+
+  const spearmanTemporalPairCount = spearmanTemporalInputs.validationTemporalValues.length;
+  const spearmanTemporalRho = useMemo(() => {
+    if (spearmanTemporalPairCount < 3) {
+      return null;
+    }
+    return computeSpearmanCorrelation(
+      spearmanTemporalInputs.validationTemporalValues,
+      spearmanTemporalInputs.originalTemporalValues,
+    );
+  }, [
+    spearmanTemporalInputs.originalTemporalValues,
+    spearmanTemporalInputs.validationTemporalValues,
+    spearmanTemporalPairCount,
+  ]);
 
   const controlsDisabled = !catalog || !validationIndex || !originalIndex || !selectedPair;
   const aggregationLabel =
@@ -1463,14 +1500,29 @@ export function ModelsPage() {
           <div className="compare-series-meta-item">
             <span className="meta-label">Spearman rho (spatial NxN)</span>
             <strong data-testid="timeseries-spearman-rho">
-              {spearmanRho != null ? formatCompactNumber(spearmanRho, 4) : "n/a"}
+              {spearmanSpatialRho != null ? formatCompactNumber(spearmanSpatialRho, 4) : "n/a"}
             </strong>
           </div>
           <div className="compare-series-meta-item">
-            <span className="meta-label">Spearman pairs</span>
-            <strong data-testid="timeseries-spearman-count">{spearmanSampleCount}</strong>
+            <span className="meta-label">Spatial pairs</span>
+            <strong data-testid="timeseries-spearman-count">{spearmanSpatialPairCount}</strong>
+          </div>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Spearman rho (temporal)</span>
+            <strong data-testid="timeseries-spearman-rho-macro">
+              {spearmanTemporalRho != null ? formatCompactNumber(spearmanTemporalRho, 4) : "n/a"}
+            </strong>
+          </div>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Temporal pairs</span>
+            <strong data-testid="timeseries-spearman-count-macro">{spearmanTemporalPairCount}</strong>
           </div>
         </div>
+        <p className="compare-series-footnote">
+          Spearman micro: correlazione spaziale patch-by-patch nel blocco NxN allo snapshot attivo. Spearman macro:
+          correlazione temporale tra le due serie aggregate del blocco sugli snapshot condivisi. Se le coppie valide
+          sono meno di 3, il valore è mostrato come n/a.
+        </p>
       </section>
 
       <section className="panel rise patch-panel compare-inspector-panel">
