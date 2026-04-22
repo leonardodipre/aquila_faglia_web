@@ -503,18 +503,19 @@ export function computeSpearmanCorrelation(
   return Math.max(-1, Math.min(1, covariance / denominator));
 }
 
-export function buildTemporalSpearmanInputs(
+export function buildPatchTemporalSpearmanInputs(
   sharedSnapshots: ValidationSnapshotDescriptor[],
   selectedFieldKey: string | null,
   selectedPair: FamilyModelKeys | null,
-  originalWindowPatchIds: number[],
+  selectedValidationPatchId: number | null,
+  selectedOriginalPatchId: number | null,
   patchMappings: PatchMappings | null,
   snapshotSeriesCache: Map<string, Map<string, ValidationSnapshotData>>,
 ) {
   const validationTemporalValues: number[] = [];
   const originalTemporalValues: number[] = [];
 
-  if (!selectedPair || !selectedFieldKey || patchMappings == null || originalWindowPatchIds.length === 0) {
+  if (!selectedFieldKey || !selectedPair || selectedValidationPatchId == null || selectedOriginalPatchId == null) {
     return { validationTemporalValues, originalTemporalValues };
   }
 
@@ -524,17 +525,8 @@ export function buildTemporalSpearmanInputs(
     return { validationTemporalValues, originalTemporalValues };
   }
 
-  const pairedPatchIds = originalWindowPatchIds
-    .map((originalPatchId) => {
-      const mappedValidationPatchId = patchMappings.originalToValidation.get(originalPatchId);
-      if (mappedValidationPatchId == null) {
-        return null;
-      }
-      return [originalPatchId, mappedValidationPatchId] as const;
-    })
-    .filter((pair): pair is readonly [number, number] => pair != null);
-
-  if (pairedPatchIds.length === 0) {
+  const mappedValidationPatchId = patchMappings.originalToValidation.get(selectedOriginalPatchId);
+  if (mappedValidationPatchId == null || mappedValidationPatchId !== selectedValidationPatchId) {
     return { validationTemporalValues, originalTemporalValues };
   }
 
@@ -545,13 +537,11 @@ export function buildTemporalSpearmanInputs(
       continue;
     }
 
-    for (const [originalPatchId, validationPatchId] of pairedPatchIds) {
-      const originalValue = originalFieldValues[originalPatchId];
-      const validationValue = validationFieldValues[validationPatchId];
-      if (Number.isFinite(validationValue) && Number.isFinite(originalValue)) {
-        validationTemporalValues.push(validationValue);
-        originalTemporalValues.push(originalValue);
-      }
+    const originalValue = originalFieldValues[selectedOriginalPatchId];
+    const validationValue = validationFieldValues[selectedValidationPatchId];
+    if (Number.isFinite(validationValue) && Number.isFinite(originalValue)) {
+      validationTemporalValues.push(validationValue);
+      originalTemporalValues.push(originalValue);
     }
   }
 
@@ -1240,18 +1230,20 @@ export function ModelsPage() {
 
   const spearmanTemporalInputs = useMemo(
     () =>
-      buildTemporalSpearmanInputs(
+      buildPatchTemporalSpearmanInputs(
         sharedSnapshots,
         selectedFieldKey,
         selectedPair,
-        originalWindowPatchIds,
+        selectedValidationPatchId,
+        selectedOriginalPatchId,
         patchMappings,
         snapshotSeriesCacheRef.current,
       ),
     [
-      originalWindowPatchIds,
       patchMappings,
       selectedFieldKey,
+      selectedOriginalPatchId,
+      selectedValidationPatchId,
       selectedPair,
       sharedSnapshots,
       seriesCacheVersion,
@@ -1272,6 +1264,24 @@ export function ModelsPage() {
     spearmanTemporalInputs.validationTemporalValues,
     spearmanTemporalPairCount,
   ]);
+
+  const spearmanMacroPairCount = useMemo(() => {
+    let pairCount = 0;
+    const pairTotal = Math.min(validationPatchSeries.length, originalPatchSeries.length);
+    for (let index = 0; index < pairTotal; index += 1) {
+      if (Number.isFinite(validationPatchSeries[index]) && Number.isFinite(originalPatchSeries[index])) {
+        pairCount += 1;
+      }
+    }
+    return pairCount;
+  }, [originalPatchSeries, validationPatchSeries]);
+
+  const spearmanMacroRho = useMemo(() => {
+    if (spearmanMacroPairCount < 3) {
+      return null;
+    }
+    return computeSpearmanCorrelation(validationPatchSeries, originalPatchSeries);
+  }, [originalPatchSeries, spearmanMacroPairCount, validationPatchSeries]);
 
   const controlsDisabled = !catalog || !validationIndex || !originalIndex || !selectedPair;
   const aggregationLabel =
@@ -1512,8 +1522,8 @@ export function ModelsPage() {
       <section className="panel rise compare-timeseries-panel">
         <div className="panel-header">
           <div>
-            <p className="eyebrow">Serie patch</p>
-            <h3>Valore area su tutti gli snapshot condivisi</h3>
+            <p className="eyebrow">Serie macro</p>
+            <h3>Valore aggregato del blocco su tutti gli snapshot condivisi</h3>
           </div>
           <span className="pill-muted">
             {selectedFieldKey || "n/a"}
@@ -1521,7 +1531,7 @@ export function ModelsPage() {
         </div>
 
         {!seriesRequested ? (
-          <p className="panel-note">Clicca una patch per caricare i grafici temporali Original/Validation.</p>
+          <p className="panel-note">Clicca una patch per caricare la serie macro Original/Validation.</p>
         ) : null}
         {seriesRequested && seriesLoading ? <p className="panel-note">Loading series...</p> : null}
         {seriesRequested && seriesLoadError ? <p className="panel-note">{seriesLoadError}</p> : null}
@@ -1561,13 +1571,13 @@ export function ModelsPage() {
 
           <div className="compare-series-meta-group">
             <div className="compare-series-meta-group-head">
-              <p className="eyebrow">Parte temporale</p>
-              <h4>Spearman micro e macro</h4>
+              <p className="eyebrow">Spearman</p>
+              <h4>Micro, temporale e macro</h4>
             </div>
             <div className="compare-series-meta-group-body">
               <div className="compare-series-subgroup">
                 <div className="compare-series-meta-item">
-                  <span className="meta-label">Spearman rho (spatial NxN)</span>
+                  <span className="meta-label">Spearman micro</span>
                   <strong data-testid="timeseries-spearman-rho">
                     {spearmanSpatialRho != null ? formatCompactNumber(spearmanSpatialRho, 4) : "n/a"}
                   </strong>
@@ -1579,19 +1589,31 @@ export function ModelsPage() {
               </div>
               <div className="compare-series-subgroup">
                 <div className="compare-series-meta-item">
-                  <span className="meta-label">Spearman rho (temporal)</span>
-                  <strong data-testid="timeseries-spearman-rho-macro">
+                  <span className="meta-label">Spearman temporale</span>
+                  <strong data-testid="timeseries-spearman-rho-temporal">
                     {spearmanTemporalRho != null ? formatCompactNumber(spearmanTemporalRho, 4) : "n/a"}
                   </strong>
                 </div>
                 <div className="compare-series-meta-item">
                   <span className="meta-label">Temporal pairs</span>
-                  <strong data-testid="timeseries-spearman-count-macro">{spearmanTemporalPairCount}</strong>
+                  <strong data-testid="timeseries-spearman-count-temporal">{spearmanTemporalPairCount}</strong>
+                </div>
+              </div>
+              <div className="compare-series-subgroup">
+                <div className="compare-series-meta-item">
+                  <span className="meta-label">Spearman macro</span>
+                  <strong data-testid="timeseries-spearman-rho-macro">
+                    {spearmanMacroRho != null ? formatCompactNumber(spearmanMacroRho, 4) : "n/a"}
+                  </strong>
+                </div>
+                <div className="compare-series-meta-item">
+                  <span className="meta-label">Macro pairs</span>
+                  <strong data-testid="timeseries-spearman-count-macro">{spearmanMacroPairCount}</strong>
                 </div>
               </div>
               <p className="compare-series-group-note">
-                Micro usa il blocco nello snapshot attivo. Macro usa tutte le coppie patch x snapshot del blocco
-                selezionato.
+                Micro: patch-wise nello snapshot attivo. Temporale: stessa patch nei snapshot condivisi. Macro: blocco
+                NxN aggregato in un unico valore medio.
               </p>
             </div>
           </div>

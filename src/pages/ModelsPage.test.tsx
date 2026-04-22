@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  buildTemporalSpearmanInputs,
+  buildPatchTemporalSpearmanInputs,
   computePatchMappings,
   computeSpearmanCorrelation,
   computeWindowPatchIds,
@@ -321,7 +321,7 @@ describe("ModelsPage compare", () => {
     expect(computeSpearmanCorrelation([1], [2])).toBeNull();
   });
 
-  it("builds temporal spearman inputs from all patch x snapshot pairs", () => {
+  it("builds temporal spearman inputs for the selected patch across snapshots", () => {
     const sharedSnapshots = [
       { date: "2025-12-31T00:00:00", date_key: "2025-12-31", path: "x" },
       { date: "2000-01-01T00:00:00", date_key: "2000-01-01", path: "x" },
@@ -374,18 +374,18 @@ describe("ModelsPage compare", () => {
       ],
     ]) as Map<string, Map<string, { fields: { slip_m: number[] } }>>;
 
-    const inputs = buildTemporalSpearmanInputs(
+    const inputs = buildPatchTemporalSpearmanInputs(
       sharedSnapshots,
       "slip_m",
       selectedPair,
-      [0, 1],
+      1,
+      1,
       patchMappings,
       snapshotSeriesCache as unknown as Map<string, Map<string, { fields: { slip_m: number[] } }>>,
     );
 
-    expect(inputs.validationTemporalValues).toEqual([1, 4, 3, 2]);
-    expect(inputs.originalTemporalValues).toEqual([2, 3, 4, 1]);
-    expect(computeSpearmanCorrelation(inputs.validationTemporalValues, inputs.originalTemporalValues)).not.toBe(1);
+    expect(inputs.validationTemporalValues).toEqual([4, 2]);
+    expect(inputs.originalTemporalValues).toEqual([3, 1]);
   });
 
   beforeEach(() => {
@@ -520,6 +520,10 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("timeseries-aggregation-mode")).toHaveTextContent("Media");
       expect(screen.getByTestId("timeseries-spearman-count")).toHaveTextContent("1");
       expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("n/a");
+      expect(screen.getByTestId("timeseries-spearman-count-temporal")).toHaveTextContent("2");
+      expect(screen.getByTestId("timeseries-spearman-rho-temporal")).toHaveTextContent("n/a");
+      expect(screen.getByTestId("timeseries-spearman-count-macro")).toHaveTextContent("2");
+      expect(screen.getByTestId("timeseries-spearman-rho-macro")).toHaveTextContent("n/a");
     });
 
     fireEvent.change(screen.getByLabelText("Finestra area"), { target: { value: "3" } });
@@ -528,6 +532,10 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("timeseries-window-size")).toHaveTextContent("3x3");
       expect(screen.getByTestId("timeseries-spearman-count")).toHaveTextContent("2");
       expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("n/a");
+      expect(screen.getByTestId("timeseries-spearman-count-temporal")).toHaveTextContent("2");
+      expect(screen.getByTestId("timeseries-spearman-rho-temporal")).toHaveTextContent("n/a");
+      expect(screen.getByTestId("timeseries-spearman-count-macro")).toHaveTextContent("2");
+      expect(screen.getByTestId("timeseries-spearman-rho-macro")).toHaveTextContent("n/a");
     });
 
     expect(global.fetch).toHaveBeenCalledWith(
