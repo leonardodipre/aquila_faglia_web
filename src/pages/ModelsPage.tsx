@@ -24,6 +24,11 @@ export type EpochKey = "final" | "step010000" | "step020000" | "step030000" | "s
 interface FamilyConfig {
   originalLabel: string;
   validationLabel: string;
+  title: string;
+  seed: number;
+  regime: "quasi-static" | "dynamic";
+  summary: string;
+  tauConfig: string;
 }
 
 interface EpochOption {
@@ -36,18 +41,42 @@ export const FAMILY_COMPARE_CONFIG: Record<FamilyKey, FamilyConfig> = {
   V1: {
     originalLabel: "Original_seed42_V_new_quasi_static",
     validationLabel: "Validation__seed_42_V_ref_new_quesi_static",
+    title: "Seed 42 - Quasi-static",
+    seed: 42,
+    regime: "quasi-static",
+    summary: "Run con seed 42 in configurazione quasi-statica.",
+    tauConfig:
+      "Configurazione tau elastica quasi-statica (tau_elastic_qs_pa), con confronto frizionale su tau_rsf_pa.",
   },
   V2: {
     originalLabel: "Original_seed42_V_new_quasi_dynamic",
     validationLabel: "Validation__seed_42_new_V_quasi_dynamic",
+    title: "Seed 42 - Dynamic",
+    seed: 42,
+    regime: "dynamic",
+    summary: "Run con seed 42 in configurazione dinamica.",
+    tauConfig:
+      "Configurazione tau dinamica più ampia: tau_elastic_pa + tau_radiation_pa, con confronto su tau_rsf_pa.",
   },
   V3: {
     originalLabel: "Original_seed7_V_new_quasi_static",
     validationLabel: "Validation_seed_7_V_ref_new_quesi_static",
+    title: "Seed 7 - Quasi-static",
+    seed: 7,
+    regime: "quasi-static",
+    summary: "Run con seed 7 in configurazione quasi-statica.",
+    tauConfig:
+      "Configurazione tau elastica quasi-statica (tau_elastic_qs_pa), con confronto frizionale su tau_rsf_pa.",
   },
   V4: {
     originalLabel: "Original_seed7_V_new_quasi_dynamic",
     validationLabel: "Validation_seed_7_V_ref_new_quasi_dynamic",
+    title: "Seed 7 - Dynamic",
+    seed: 7,
+    regime: "dynamic",
+    summary: "Run con seed 7 in configurazione dinamica.",
+    tauConfig:
+      "Configurazione tau dinamica più ampia: tau_elastic_pa + tau_radiation_pa, con confronto su tau_rsf_pa.",
   },
 };
 
@@ -76,6 +105,12 @@ const FIELD_PRIORITY = [
   "aging_residual",
   "D_c_m",
 ];
+
+const PLACE_MARKERS = [
+  { label: "L'Aquila", color: "rgba(12, 44, 132, 0.82)" },
+  { label: "Preturo", color: "rgba(146, 64, 14, 0.82)" },
+  { label: "Pizzoli", color: "rgba(21, 128, 61, 0.82)" },
+] as const;
 
 interface FamilyModelKeys {
   originalKey: string;
@@ -313,9 +348,15 @@ function FaultPlot({
 
   const xScale = (value: number) => paddingLeft + ((value - globalMinLength) / xDenominator) * drawWidth;
   const depthScale = (depth: number) => paddingTop + ((depth - minDepth) / depthDenominator) * drawHeight;
-
-  const laquilaLength = findReferenceLength(geometry, "L'Aquila");
-  const laquilaX = laquilaLength == null ? null : xScale(laquilaLength + lengthOffsetKm);
+  const midDepthY = depthScale((minDepth + maxDepth) / 2);
+  const midLengthX = xScale((globalMinLength + globalMaxLength) / 2);
+  const placeMarkers = PLACE_MARKERS.map((place) => {
+    const placeLength = findReferenceLength(geometry, place.label);
+    return {
+      ...place,
+      x: placeLength == null ? null : xScale(placeLength + lengthOffsetKm),
+    };
+  });
 
   return (
     <div className="fault-compare-card">
@@ -365,22 +406,44 @@ function FaultPlot({
             );
           })}
 
-          {laquilaX != null ? (
-            <>
-              <line
-                x1={laquilaX}
-                y1={paddingTop}
-                x2={laquilaX}
-                y2={paddingTop + drawHeight}
-                stroke="rgba(12, 44, 132, 0.75)"
-                strokeDasharray="7 5"
-                strokeWidth={1.5}
-              />
-              <text x={laquilaX + 6} y={paddingTop + 16} className="fault-marker-label">
-                L'Aquila
-              </text>
-            </>
-          ) : null}
+          <line
+            x1={paddingLeft}
+            y1={midDepthY}
+            x2={paddingLeft + drawWidth}
+            y2={midDepthY}
+            className="fault-guide-line"
+          />
+          <line
+            x1={midLengthX}
+            y1={paddingTop}
+            x2={midLengthX}
+            y2={paddingTop + drawHeight}
+            className="fault-guide-line"
+          />
+
+          {placeMarkers.map((place, index) =>
+            place.x == null ? null : (
+              <g key={place.label}>
+                <line
+                  x1={place.x}
+                  y1={paddingTop}
+                  x2={place.x}
+                  y2={paddingTop + drawHeight}
+                  stroke={place.color}
+                  strokeDasharray="7 5"
+                  strokeWidth={1.5}
+                />
+                <text
+                  x={place.x + 6}
+                  y={paddingTop + 16 + index * 13}
+                  className="fault-marker-label"
+                  style={{ fill: place.color }}
+                >
+                  {place.label}
+                </text>
+              </g>
+            ),
+          )}
 
           <text x={paddingLeft} y={viewHeight - 8} className="fault-axis-label">
             Along fault (km)
@@ -709,6 +772,30 @@ export function ModelsPage() {
             ))}
           </select>
         </label>
+
+        <div className="family-info-block">
+          <span className="meta-label">Info run V1-V4 (seed + configurazione)</span>
+          <div className="family-info-grid">
+            {familyKeys.map((familyKey) => {
+              const family = FAMILY_COMPARE_CONFIG[familyKey];
+              const active = selectedFamily === familyKey;
+              return (
+                <article
+                  key={familyKey}
+                  className={active ? "family-info-card family-info-card-active" : "family-info-card"}
+                >
+                  <h4>{familyKey}</h4>
+                  <p className="family-info-title">{family.title}</p>
+                  <p>
+                    Seed: <strong>{family.seed}</strong> | Regime: <strong>{family.regime}</strong>
+                  </p>
+                  <p>{family.summary}</p>
+                  <p>{family.tauConfig}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
 
         <label className="field-group">
           <span>Campo fisico</span>
