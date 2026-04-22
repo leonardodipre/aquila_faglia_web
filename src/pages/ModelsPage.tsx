@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ColorLegend } from "../components/ColorLegend";
+import { PatchSeriesChart } from "../components/PatchSeriesChart";
 import {
   loadValidationGeometry,
   loadValidationModelCatalog,
@@ -133,17 +134,6 @@ interface FaultPlotProps {
 interface PatchMappings {
   originalToValidation: Map<number, number>;
   validationToOriginal: Map<number, number>;
-}
-
-interface PatchTimeSeriesChartProps {
-  title: string;
-  values: number[];
-  snapshots: ValidationSnapshotDescriptor[];
-  sharedYRange: [number, number] | null;
-  activeSnapshotIndex: number;
-  units: string;
-  lineColor: string;
-  testId: string;
 }
 
 function normalizeLabel(label: string) {
@@ -525,125 +515,6 @@ function FaultPlot({
           </text>
           <text x={8} y={paddingTop + 14} className="fault-axis-label">
             Depth (km)
-          </text>
-        </svg>
-      </div>
-    </div>
-  );
-}
-
-function buildLinePath(
-  values: number[],
-  xScale: (index: number) => number,
-  yScale: (value: number) => number,
-) {
-  const segments: string[] = [];
-  values.forEach((value, index) => {
-    if (!Number.isFinite(value)) {
-      return;
-    }
-    const command = segments.length === 0 ? "M" : "L";
-    segments.push(`${command}${xScale(index)} ${yScale(value)}`);
-  });
-  return segments.join(" ");
-}
-
-function PatchTimeSeriesChart({
-  title,
-  values,
-  snapshots,
-  sharedYRange,
-  activeSnapshotIndex,
-  units,
-  lineColor,
-  testId,
-}: PatchTimeSeriesChartProps) {
-  if (!sharedYRange || snapshots.length === 0) {
-    return <div className="loading-state">Nessuna serie disponibile.</div>;
-  }
-
-  const [yMin, yMax] = sharedYRange;
-  const viewWidth = 760;
-  const viewHeight = 240;
-  const paddingLeft = 52;
-  const paddingRight = 18;
-  const paddingTop = 20;
-  const paddingBottom = 42;
-  const drawWidth = viewWidth - paddingLeft - paddingRight;
-  const drawHeight = viewHeight - paddingTop - paddingBottom;
-  const xDenominator = Math.max(snapshots.length - 1, 1);
-  const yDenominator = Math.max(yMax - yMin, 1e-12);
-  const xScale = (index: number) => paddingLeft + (index / xDenominator) * drawWidth;
-  const yScale = (value: number) => paddingTop + ((yMax - value) / yDenominator) * drawHeight;
-  const activeValue = values[activeSnapshotIndex];
-  const activeX = xScale(Math.min(Math.max(activeSnapshotIndex, 0), snapshots.length - 1));
-  const activeY = Number.isFinite(activeValue) ? yScale(activeValue) : null;
-  const linePath = buildLinePath(values, xScale, yScale);
-
-  return (
-    <div className="patch-series-card">
-      <div className="fault-compare-head">
-        <h4>{title}</h4>
-        <span className="pill-muted">{units || "unitless"}</span>
-      </div>
-      <div className="patch-series-shell">
-        <svg
-          className="patch-series-svg"
-          data-testid={testId}
-          viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-          role="img"
-          aria-label={`${title} snapshot chart`}
-        >
-          <rect x={0} y={0} width={viewWidth} height={viewHeight} fill="#f3efe3" />
-          <rect
-            x={paddingLeft}
-            y={paddingTop}
-            width={drawWidth}
-            height={drawHeight}
-            rx={12}
-            fill="#fffdfa"
-            stroke="rgba(24, 33, 43, 0.12)"
-          />
-          <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={paddingTop + drawHeight} className="series-axis-line" />
-          <line
-            x1={paddingLeft}
-            y1={paddingTop + drawHeight}
-            x2={paddingLeft + drawWidth}
-            y2={paddingTop + drawHeight}
-            className="series-axis-line"
-          />
-          {linePath ? (
-            <path
-              d={linePath}
-              fill="none"
-              stroke={lineColor}
-              strokeWidth={2.2}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-          ) : null}
-          <line
-            x1={activeX}
-            y1={paddingTop}
-            x2={activeX}
-            y2={paddingTop + drawHeight}
-            className="series-active-line"
-          />
-          {activeY != null ? <circle cx={activeX} cy={activeY} r={4.1} fill={lineColor} /> : null}
-          <text x={paddingLeft} y={viewHeight - 10} className="series-label">
-            {formatDateLabel(snapshots[0].date)}
-          </text>
-          <text x={activeX + 6} y={viewHeight - 10} className="series-label">
-            {formatDateLabel(snapshots[Math.min(Math.max(activeSnapshotIndex, 0), snapshots.length - 1)].date)}
-          </text>
-          <text x={paddingLeft + drawWidth - 110} y={viewHeight - 10} className="series-label">
-            {formatDateLabel(snapshots[snapshots.length - 1].date)}
-          </text>
-          <text x={8} y={paddingTop + 12} className="series-label">
-            {formatScientific(yMax)}
-          </text>
-          <text x={8} y={paddingTop + drawHeight} className="series-label">
-            {formatScientific(yMin)}
           </text>
         </svg>
       </div>
@@ -1280,24 +1151,22 @@ export function ModelsPage() {
 
         {seriesRequested && !seriesLoading && !seriesLoadError ? (
           <div className="compare-series-grid">
-            <PatchTimeSeriesChart
+            <PatchSeriesChart
               title="Validation"
+              dates={sharedSnapshots.map((snapshot) => snapshot.date)}
               values={validationPatchSeries}
-              snapshots={sharedSnapshots}
               sharedYRange={sharedTimeSeriesRange}
-              activeSnapshotIndex={selectedSnapshotIndex}
               units={sharedFieldMeta?.units ?? "unitless"}
-              lineColor="#0f4c5c"
+              color="#0f4c5c"
               testId="validation-timeseries-chart"
             />
-            <PatchTimeSeriesChart
+            <PatchSeriesChart
               title="Original"
+              dates={sharedSnapshots.map((snapshot) => snapshot.date)}
               values={originalPatchSeries}
-              snapshots={sharedSnapshots}
               sharedYRange={sharedTimeSeriesRange}
-              activeSnapshotIndex={selectedSnapshotIndex}
               units={sharedFieldMeta?.units ?? "unitless"}
-              lineColor="#c37211"
+              color="#c37211"
               testId="original-timeseries-chart"
             />
           </div>
