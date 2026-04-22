@@ -41,7 +41,7 @@ def resolve_path(raw_path: str | None, *, relative_to: Path) -> Path:
 
 def reset_output_dir(output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    for child in ("timeseries", "models", "model_snapshots"):
+    for child in ("timeseries", "models", "model_snapshots", "validation"):
         target = output_dir / child
         if target.exists():
             shutil.rmtree(target)
@@ -94,6 +94,7 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
     field_overrides = config.get("field_overrides", {})
     snapshot_strategy = config.get("snapshot_strategy")
     source_catalog = load_json(source_data_dir / "models" / "index.json")
+    validation_catalog = load_json(source_data_dir / "validation" / "models" / "index.json")
     stations_payload = load_json(source_data_dir / "stations.json")
     fault_trace = load_json(source_data_dir / "fault.geojson")
     fault_patches = load_json(source_data_dir / "fault_patches.json")
@@ -116,6 +117,7 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
     write_json(output_dir / "stations.json", normalized_stations_payload)
     write_json(output_dir / "fault.geojson", fault_trace)
     write_json(output_dir / "fault_patches.json", fault_patches)
+    shutil.copytree(source_data_dir / "validation" / "models", output_dir / "validation" / "models")
 
     timeseries_count = 0
     for station in stations_payload["stations"]:
@@ -244,6 +246,7 @@ def import_curated_assets(config_path: Path, source_data_dir: Path, output_dir: 
             "fault_patches": fault_patches["meta"]["patch_count"],
             "models": len(curated_models),
             "snapshots": total_snapshots,
+            "validation_models": len(validation_catalog.get("models", [])),
         },
         "sources": {
             "config_path": relative_manifest_path(config_path),

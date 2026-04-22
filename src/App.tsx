@@ -17,8 +17,8 @@ export function App() {
           <p className="eyebrow">Frontend + backend static explorer</p>
           <h1>Aquila Fault + GNSS Explorer</h1>
           <p className="topbar-subtitle">
-            Curated GNSS stations across Italy and lightweight 3D inspection of selected PINN fault
-            models.
+            Curated GNSS stations across Italy and V1-V4 Original/Validation fault compare with shared
+            color scaling.
           </p>
         </div>
 
@@ -30,7 +30,7 @@ export function App() {
             to="/modelli"
             className={({ isActive }) => (isActive ? "nav-pill nav-pill-active" : "nav-pill")}
           >
-            Modelli 3D
+            Modelli Compare
           </NavLink>
         </nav>
       </header>

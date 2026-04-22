@@ -179,3 +179,104 @@ export interface SnapshotData {
   };
 }
 
+export interface ValidationModelCatalogEntry {
+  key: string;
+  label: string;
+  folder_key: string;
+  folder_label: string;
+  checkpoint: string;
+  green_dir: string;
+  geometry_path: string;
+  snapshot_index_path: string;
+  snapshot_count: number;
+  patch_count: number;
+  reference_date: string;
+  time_range: {
+    start: string;
+    end: string;
+  };
+}
+
+export interface ValidationModelCatalog {
+  default_model_key: string;
+  models: ValidationModelCatalogEntry[];
+}
+
+export interface ValidationGeometryPatch {
+  id: number;
+  row: number;
+  col: number;
+  center_length_km: number;
+  center_depth_km: number;
+  polygon_length_depth_km: [number, number][];
+}
+
+export interface ValidationReferencePlace {
+  label: string;
+  longitude: number;
+  latitude: number;
+  projected_length_km: number;
+  projected_depth_km: number;
+  source?: string;
+}
+
+export interface ValidationGeometryData {
+  meta: {
+    model_key: string;
+    model_label: string;
+    folder_key: string;
+    folder_label: string;
+    checkpoint: string;
+    green_dir: string;
+    reference_date: string;
+    patch_count: number;
+    grid: {
+      nx: number;
+      ny: number;
+    };
+    strike_deg: number;
+    dip_deg: number;
+    top_depth_km: number;
+    bottom_depth_km: number;
+    length_extent_km: [number, number];
+    depth_extent_km: [number, number];
+  };
+  reference_places: ValidationReferencePlace[];
+  patches: ValidationGeometryPatch[];
+}
+
+export interface ValidationSnapshotDescriptor {
+  date: string;
+  date_key: string;
+  path?: string;
+}
+
+export interface ValidationSnapshotIndex {
+  meta: {
+    model_key: string;
+    model_label: string;
+    folder_key: string;
+    folder_label: string;
+    checkpoint: string;
+    green_dir: string;
+    reference_date: string;
+    snapshot_count: number;
+    patch_count: number;
+  };
+  fields: Record<string, SnapshotFieldMeta>;
+  snapshots: ValidationSnapshotDescriptor[];
+}
+
+export interface ValidationSnapshotData {
+  date: string;
+  time_seconds: number;
+  fields: Record<string, number[]>;
+  stats?: Record<
+    string,
+    {
+      min: number;
+      max: number;
+      mean: number;
+    }
+  >;
+}

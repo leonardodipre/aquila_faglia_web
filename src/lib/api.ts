@@ -7,6 +7,10 @@ import type {
   StationSummary,
   StationsResponse,
   StationTimeseries,
+  ValidationGeometryData,
+  ValidationModelCatalog,
+  ValidationSnapshotData,
+  ValidationSnapshotIndex,
 } from "./types";
 
 const jsonCache = new Map<string, Promise<unknown>>();
@@ -127,4 +131,20 @@ export async function loadModelDetail(modelKey: string) {
 
 export function loadModelSnapshot(modelKey: string, snapshotKey: string) {
   return fetchJson<SnapshotData>(staticPath(`model_snapshots/${modelKey}/${snapshotKey}.json`));
+}
+
+export function loadValidationModelCatalog() {
+  return fetchJson<ValidationModelCatalog>(staticPath("validation/models/index.json"));
+}
+
+export function loadValidationGeometry(modelKey: string) {
+  return fetchJson<ValidationGeometryData>(staticPath(`validation/models/${modelKey}/geometry.json`));
+}
+
+export function loadValidationSnapshotIndex(modelKey: string) {
+  return fetchJson<ValidationSnapshotIndex>(staticPath(`validation/models/${modelKey}/index.json`));
+}
+
+export function loadValidationSnapshot(modelKey: string, snapshotKey: string) {
+  return fetchJson<ValidationSnapshotData>(staticPath(`validation/models/${modelKey}/snapshots/${snapshotKey}.json`));
 }

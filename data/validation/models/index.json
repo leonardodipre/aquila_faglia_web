@@ -1,0 +1,923 @@
+{
+  "default_model_key": "green_out_validation_original_seed7_v_new_quasi_dynamic",
+  "models": [
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_dynamic",
+      "label": "Original_seed42_V_new_quasi_dynamic",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_dynamic/model.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_dynamic_model_step010000",
+      "label": "Original_seed42_V_new_quasi_dynamic / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_dynamic/model.step010000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_dynamic_model_step020000",
+      "label": "Original_seed42_V_new_quasi_dynamic / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_dynamic/model.step020000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_dynamic_model_step030000",
+      "label": "Original_seed42_V_new_quasi_dynamic / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_dynamic/model.step030000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_dynamic_model_step040000",
+      "label": "Original_seed42_V_new_quasi_dynamic / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_dynamic/model.step040000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_dynamic_model_step050000",
+      "label": "Original_seed42_V_new_quasi_dynamic / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_dynamic/model.step050000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_dynamic_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_static",
+      "label": "Original_seed42_V_new_quasi_static",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_static/model.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_static_model_step010000",
+      "label": "Original_seed42_V_new_quasi_static / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_static/model.step010000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_static_model_step020000",
+      "label": "Original_seed42_V_new_quasi_static / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_static/model.step020000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_static_model_step030000",
+      "label": "Original_seed42_V_new_quasi_static / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_static/model.step030000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_static_model_step040000",
+      "label": "Original_seed42_V_new_quasi_static / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_static/model.step040000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed42_v_new_quasi_static_model_step050000",
+      "label": "Original_seed42_V_new_quasi_static / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed42_V_new_quasi_static/model.step050000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed42_v_new_quasi_static_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_dynamic",
+      "label": "Original_seed7_V_new_quasi_dynamic",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_dynamic/model.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_dynamic_model_step010000",
+      "label": "Original_seed7_V_new_quasi_dynamic / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_dynamic/model.step010000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_dynamic_model_step020000",
+      "label": "Original_seed7_V_new_quasi_dynamic / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_dynamic/model.step020000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_dynamic_model_step030000",
+      "label": "Original_seed7_V_new_quasi_dynamic / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_dynamic/model.step030000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_dynamic_model_step040000",
+      "label": "Original_seed7_V_new_quasi_dynamic / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_dynamic/model.step040000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_dynamic_model_step050000",
+      "label": "Original_seed7_V_new_quasi_dynamic / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_dynamic/model.step050000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_dynamic_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_static",
+      "label": "Original_seed7_V_new_quasi_static",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_static/model.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_static_model_step010000",
+      "label": "Original_seed7_V_new_quasi_static / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_static/model.step010000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_static_model_step020000",
+      "label": "Original_seed7_V_new_quasi_static / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_static/model.step020000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_static_model_step030000",
+      "label": "Original_seed7_V_new_quasi_static / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_static/model.step030000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_static_model_step040000",
+      "label": "Original_seed7_V_new_quasi_static / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_static/model.step040000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_original_seed7_v_new_quasi_static_model_step050000",
+      "label": "Original_seed7_V_new_quasi_static / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Original_seed7_V_new_quasi_static/model.step050000.pt",
+      "green_dir": "green_out",
+      "geometry_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_original_seed7_v_new_quasi_static_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1914,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_new_v_quasi_dynamic",
+      "label": "Validation__seed_42_new_V_quasi_dynamic",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_new_V_quasi_dynamic/model.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step010000",
+      "label": "Validation__seed_42_new_V_quasi_dynamic / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_new_V_quasi_dynamic/model.step010000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step020000",
+      "label": "Validation__seed_42_new_V_quasi_dynamic / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_new_V_quasi_dynamic/model.step020000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step030000",
+      "label": "Validation__seed_42_new_V_quasi_dynamic / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_new_V_quasi_dynamic/model.step030000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step040000",
+      "label": "Validation__seed_42_new_V_quasi_dynamic / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_new_V_quasi_dynamic/model.step040000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step050000",
+      "label": "Validation__seed_42_new_V_quasi_dynamic / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_new_V_quasi_dynamic/model.step050000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_new_v_quasi_dynamic_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_v_ref_new_quesi_static",
+      "label": "Validation__seed_42_V_ref_new_quesi_static",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_V_ref_new_quesi_static/model.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step010000",
+      "label": "Validation__seed_42_V_ref_new_quesi_static / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_V_ref_new_quesi_static/model.step010000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step020000",
+      "label": "Validation__seed_42_V_ref_new_quesi_static / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_V_ref_new_quesi_static/model.step020000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step030000",
+      "label": "Validation__seed_42_V_ref_new_quesi_static / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_V_ref_new_quesi_static/model.step030000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step040000",
+      "label": "Validation__seed_42_V_ref_new_quesi_static / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_V_ref_new_quesi_static/model.step040000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step050000",
+      "label": "Validation__seed_42_V_ref_new_quesi_static / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation__seed_42_V_ref_new_quesi_static/model.step050000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_42_v_ref_new_quesi_static_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic",
+      "label": "Validation_seed_7_V_ref_new_quasi_dynamic",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quasi_dynamic/model.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step010000",
+      "label": "Validation_seed_7_V_ref_new_quasi_dynamic / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quasi_dynamic/model.step010000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step020000",
+      "label": "Validation_seed_7_V_ref_new_quasi_dynamic / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quasi_dynamic/model.step020000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step030000",
+      "label": "Validation_seed_7_V_ref_new_quasi_dynamic / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quasi_dynamic/model.step030000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step040000",
+      "label": "Validation_seed_7_V_ref_new_quasi_dynamic / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quasi_dynamic/model.step040000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step050000",
+      "label": "Validation_seed_7_V_ref_new_quasi_dynamic / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quasi_dynamic/model.step050000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quasi_dynamic_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quesi_static",
+      "label": "Validation_seed_7_V_ref_new_quesi_static",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quesi_static/model.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step010000",
+      "label": "Validation_seed_7_V_ref_new_quesi_static / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quesi_static/model.step010000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step020000",
+      "label": "Validation_seed_7_V_ref_new_quesi_static / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quesi_static/model.step020000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step030000",
+      "label": "Validation_seed_7_V_ref_new_quesi_static / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quesi_static/model.step030000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step040000",
+      "label": "Validation_seed_7_V_ref_new_quesi_static / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quesi_static/model.step040000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step050000",
+      "label": "Validation_seed_7_V_ref_new_quesi_static / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Validation_seed_7_V_ref_new_quesi_static/model.step050000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_validation_seed_7_v_ref_new_quesi_static_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static",
+      "label": "Z_Validation__seed_7_1900_patch_oldVref_quesi_static",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Z_Validation__seed_7_1900_patch_oldVref_quesi_static/model.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step010000",
+      "label": "Z_Validation__seed_7_1900_patch_oldVref_quesi_static / model.step010000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Z_Validation__seed_7_1900_patch_oldVref_quesi_static/model.step010000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step010000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step010000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step020000",
+      "label": "Z_Validation__seed_7_1900_patch_oldVref_quesi_static / model.step020000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Z_Validation__seed_7_1900_patch_oldVref_quesi_static/model.step020000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step020000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step020000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step030000",
+      "label": "Z_Validation__seed_7_1900_patch_oldVref_quesi_static / model.step030000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Z_Validation__seed_7_1900_patch_oldVref_quesi_static/model.step030000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step030000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step030000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step040000",
+      "label": "Z_Validation__seed_7_1900_patch_oldVref_quesi_static / model.step040000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Z_Validation__seed_7_1900_patch_oldVref_quesi_static/model.step040000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step040000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step040000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    },
+    {
+      "key": "green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step050000",
+      "label": "Z_Validation__seed_7_1900_patch_oldVref_quesi_static / model.step050000",
+      "folder_key": "green_out_validation",
+      "folder_label": "green_out_validation",
+      "checkpoint": "validation_runs/green_out_validation/Z_Validation__seed_7_1900_patch_oldVref_quesi_static/model.step050000.pt",
+      "green_dir": "green_out_validation",
+      "geometry_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step050000/geometry.json",
+      "snapshot_index_path": "/data/validation/models/green_out_validation_z_validation_seed_7_1900_patch_oldvref_quesi_static_model_step050000/index.json",
+      "snapshot_count": 27,
+      "patch_count": 1888,
+      "reference_date": "2000-01-01T00:00:00",
+      "time_range": {
+        "start": "2000-01-01T00:00:00",
+        "end": "2025-12-31T00:00:00"
+      }
+    }
+  ]
+}

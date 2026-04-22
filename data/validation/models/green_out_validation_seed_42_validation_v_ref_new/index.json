@@ -1,0 +1,264 @@
+{
+  "meta": {
+    "model_key": "green_out_validation_seed_42_validation_v_ref_new",
+    "model_label": "seed_42_validation_V_ref_new",
+    "folder_key": "green_out_validation",
+    "folder_label": "green_out_validation",
+    "checkpoint": "validation_runs/green_out_validation/seed_42_validation_V_ref_new/model.pt",
+    "green_dir": "green_out_validation",
+    "reference_date": "2000-01-01T00:00:00",
+    "snapshot_count": 27,
+    "patch_count": 1888
+  },
+  "fields": {
+    "slip_m": {
+      "label": "Slip",
+      "units": "m",
+      "color_map": "viridis",
+      "scale": "linear",
+      "min": -0.27639341354370117,
+      "max": 0.18269062042236328
+    },
+    "delta_slip_m": {
+      "label": "Delta slip",
+      "units": "m",
+      "color_map": "inferno",
+      "scale": "linear",
+      "min": 0.0,
+      "max": 0.027958840131759644
+    },
+    "slip_rate_m_per_s": {
+      "label": "Slip rate V",
+      "units": "m/s",
+      "color_map": "hot",
+      "scale": "log",
+      "min": 2.2637079710730035e-11,
+      "max": 3.622283722970465e-11
+    },
+    "theta_s": {
+      "label": "Theta",
+      "units": "s",
+      "color_map": "plasma",
+      "scale": "log",
+      "min": 415195232.0,
+      "max": 675822144.0
+    },
+    "a": {
+      "label": "a",
+      "units": "unitless",
+      "color_map": "ylorred",
+      "scale": "linear",
+      "min": 0.01660066470503807,
+      "max": 0.023754894733428955
+    },
+    "b": {
+      "label": "b",
+      "units": "unitless",
+      "color_map": "ylorred",
+      "scale": "linear",
+      "min": 0.022888146340847015,
+      "max": 0.026713894680142403
+    },
+    "D_c_m": {
+      "label": "D_c",
+      "units": "m",
+      "color_map": "ylgnbu",
+      "scale": "linear",
+      "min": 0.015791432932019234,
+      "max": 0.016663862392306328
+    },
+    "a_minus_b": {
+      "label": "a - b",
+      "units": "unitless",
+      "color_map": "rdbu",
+      "scale": "symmetric",
+      "min": -0.010113229975104332,
+      "max": 0.010113229975104332
+    },
+    "tau_elastic_pa": {
+      "label": "Tau elastic total",
+      "units": "Pa",
+      "color_map": "cividis",
+      "scale": "linear",
+      "min": 57386940.0,
+      "max": 65676640.0
+    },
+    "tau_elastic_qs_pa": {
+      "label": "Tau elastic QS",
+      "units": "Pa",
+      "color_map": "cividis",
+      "scale": "linear",
+      "min": 57386940.0,
+      "max": 65676640.0
+    },
+    "tau_radiation_pa": {
+      "label": "Tau radiation",
+      "units": "Pa",
+      "color_map": "blueorange",
+      "scale": "symmetric",
+      "min": -1e-12,
+      "max": 1e-12
+    },
+    "tau_rsf_pa": {
+      "label": "Tau RSF",
+      "units": "Pa",
+      "color_map": "cividis",
+      "scale": "linear",
+      "min": 59848000.0,
+      "max": 63606440.0
+    },
+    "tau_residual_over_sigma_n": {
+      "label": "RSF residual / sigma_n",
+      "units": "unitless",
+      "color_map": "blueorange",
+      "scale": "symmetric",
+      "min": -0.0349042,
+      "max": 0.0349042
+    },
+    "aging_residual": {
+      "label": "Aging residual",
+      "units": "unitless",
+      "color_map": "blueorange",
+      "scale": "symmetric",
+      "min": -0.04490484771249803,
+      "max": 0.04490484771249803
+    }
+  },
+  "snapshots": [
+    {
+      "date": "2000-01-01T00:00:00",
+      "date_key": "2000-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2000-01-01.json"
+    },
+    {
+      "date": "2001-01-01T00:00:00",
+      "date_key": "2001-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2001-01-01.json"
+    },
+    {
+      "date": "2002-01-01T00:00:00",
+      "date_key": "2002-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2002-01-01.json"
+    },
+    {
+      "date": "2003-01-01T00:00:00",
+      "date_key": "2003-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2003-01-01.json"
+    },
+    {
+      "date": "2004-01-01T00:00:00",
+      "date_key": "2004-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2004-01-01.json"
+    },
+    {
+      "date": "2005-01-01T00:00:00",
+      "date_key": "2005-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2005-01-01.json"
+    },
+    {
+      "date": "2006-01-01T00:00:00",
+      "date_key": "2006-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2006-01-01.json"
+    },
+    {
+      "date": "2007-01-01T00:00:00",
+      "date_key": "2007-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2007-01-01.json"
+    },
+    {
+      "date": "2008-01-01T00:00:00",
+      "date_key": "2008-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2008-01-01.json"
+    },
+    {
+      "date": "2009-01-01T00:00:00",
+      "date_key": "2009-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2009-01-01.json"
+    },
+    {
+      "date": "2010-01-01T00:00:00",
+      "date_key": "2010-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2010-01-01.json"
+    },
+    {
+      "date": "2011-01-01T00:00:00",
+      "date_key": "2011-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2011-01-01.json"
+    },
+    {
+      "date": "2012-01-01T00:00:00",
+      "date_key": "2012-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2012-01-01.json"
+    },
+    {
+      "date": "2013-01-01T00:00:00",
+      "date_key": "2013-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2013-01-01.json"
+    },
+    {
+      "date": "2014-01-01T00:00:00",
+      "date_key": "2014-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2014-01-01.json"
+    },
+    {
+      "date": "2015-01-01T00:00:00",
+      "date_key": "2015-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2015-01-01.json"
+    },
+    {
+      "date": "2016-01-01T00:00:00",
+      "date_key": "2016-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2016-01-01.json"
+    },
+    {
+      "date": "2017-01-01T00:00:00",
+      "date_key": "2017-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2017-01-01.json"
+    },
+    {
+      "date": "2018-01-01T00:00:00",
+      "date_key": "2018-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2018-01-01.json"
+    },
+    {
+      "date": "2019-01-01T00:00:00",
+      "date_key": "2019-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2019-01-01.json"
+    },
+    {
+      "date": "2020-01-01T00:00:00",
+      "date_key": "2020-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2020-01-01.json"
+    },
+    {
+      "date": "2021-01-01T00:00:00",
+      "date_key": "2021-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2021-01-01.json"
+    },
+    {
+      "date": "2022-01-01T00:00:00",
+      "date_key": "2022-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2022-01-01.json"
+    },
+    {
+      "date": "2023-01-01T00:00:00",
+      "date_key": "2023-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2023-01-01.json"
+    },
+    {
+      "date": "2024-01-01T00:00:00",
+      "date_key": "2024-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2024-01-01.json"
+    },
+    {
+      "date": "2025-01-01T00:00:00",
+      "date_key": "2025-01-01",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2025-01-01.json"
+    },
+    {
+      "date": "2025-12-31T00:00:00",
+      "date_key": "2025-12-31",
+      "path": "/data/validation/models/green_out_validation_seed_42_validation_v_ref_new/snapshots/2025-12-31.json"
+    }
+  ]
+}
