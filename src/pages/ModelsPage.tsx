@@ -1154,14 +1154,13 @@ export function ModelsPage() {
             dates={sharedSnapshots.map((snapshot) => snapshot.date)}
             validationValues={validationPatchSeries}
             originalValues={originalPatchSeries}
-            sharedYRange={sharedTimeSeriesRange}
             units={sharedFieldMeta?.units ?? "unitless"}
             testId="compare-timeseries-chart"
           />
         ) : null}
 
         <div className="compare-series-meta">
-          <span className="meta-label">Y shared range</span>
+          <span className="meta-label">Y min|max (plot)</span>
           <strong data-testid="timeseries-shared-y-range">
             {sharedTimeSeriesRange ? `${sharedTimeSeriesRange[0]}|${sharedTimeSeriesRange[1]}` : "n/a"}
           </strong>

@@ -7,7 +7,6 @@ interface PatchSeriesChartProps {
   validationValues: number[];
   originalValues: number[];
   units: string;
-  sharedYRange: [number, number] | null;
   testId: string;
 }
 
@@ -16,7 +15,6 @@ export function PatchSeriesChart({
   validationValues,
   originalValues,
   units,
-  sharedYRange,
   testId,
 }: PatchSeriesChartProps) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -29,6 +27,22 @@ export function PatchSeriesChart({
     const cleanedOriginalValues = originalValues.map((value) => (Number.isFinite(value) ? value : null));
     return [timestamps, cleanedValidationValues, cleanedOriginalValues] as uPlot.AlignedData;
   }, [dates, originalValues, validationValues]);
+
+  const plotYRange = useMemo(() => {
+    const finiteValues = [...validationValues, ...originalValues].filter((value) => Number.isFinite(value));
+    if (finiteValues.length === 0) {
+      return null;
+    }
+
+    let min = Math.min(...finiteValues);
+    let max = Math.max(...finiteValues);
+    if (min === max) {
+      const pad = Math.max(Math.abs(min) * 0.05, 1e-12);
+      min -= pad;
+      max += pad;
+    }
+    return [min, max] as [number, number];
+  }, [originalValues, validationValues]);
 
   useEffect(() => {
     const node = hostRef.current;
@@ -48,14 +62,14 @@ export function PatchSeriesChart({
 
   useEffect(() => {
     const node = hostRef.current;
-    if (!node || width === 0 || !sharedYRange) {
+    if (!node || width === 0 || !plotYRange) {
       return;
     }
 
     try {
       setChartError(null);
       node.innerHTML = "";
-      const [sharedYMin, sharedYMax] = sharedYRange;
+      const [plotYMin, plotYMax] = plotYRange;
       const plot = new uPlot(
         {
           width,
@@ -71,7 +85,7 @@ export function PatchSeriesChart({
             x: { time: true },
             y: {
               auto: false,
-              range: () => [sharedYMin, sharedYMax],
+              range: () => [plotYMin, plotYMax],
             },
           },
           axes: [
@@ -102,7 +116,7 @@ export function PatchSeriesChart({
       setChartError("Impossibile renderizzare il grafico patch.");
       node.innerHTML = "";
     }
-  }, [alignedData, sharedYRange, units, width]);
+  }, [alignedData, plotYRange, units, width]);
 
   return (
     <div className="patch-series-card">
