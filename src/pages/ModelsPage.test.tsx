@@ -431,7 +431,7 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("original-selected-patch-id")).toHaveTextContent("0");
       expect(screen.getByTestId("validation-selected-patch-id")).toHaveTextContent("0");
       expect(screen.getByTestId("compare-timeseries-chart")).toBeInTheDocument();
-      expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.2|1.5");
+      expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.5|1.7");
     });
 
     expect(global.fetch).toHaveBeenCalledWith(

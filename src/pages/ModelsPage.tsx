@@ -932,6 +932,25 @@ export function ModelsPage() {
     return [min, max] as [number, number];
   }, [originalPatchSeries, validationPatchSeries]);
 
+  const plotLegendRange = useMemo(() => {
+    if (!sharedFieldMeta) {
+      return null;
+    }
+    let min = sharedFieldMeta.min;
+    let max = sharedFieldMeta.max;
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      return null;
+    }
+    if (min === max) {
+      const pad = Math.max(Math.abs(min) * 0.05, 1e-12);
+      min -= pad;
+      max += pad;
+    }
+    return [min, max] as [number, number];
+  }, [sharedFieldMeta]);
+
+  const timeSeriesYRange = plotLegendRange ?? sharedTimeSeriesRange;
+
   const controlsDisabled = !catalog || !validationIndex || !originalIndex || !selectedPair;
 
   return (
@@ -1154,15 +1173,16 @@ export function ModelsPage() {
             dates={sharedSnapshots.map((snapshot) => snapshot.date)}
             validationValues={validationPatchSeries}
             originalValues={originalPatchSeries}
+            yRange={timeSeriesYRange}
             units={sharedFieldMeta?.units ?? "unitless"}
             testId="compare-timeseries-chart"
           />
         ) : null}
 
         <div className="compare-series-meta">
-          <span className="meta-label">Y min|max (plot)</span>
+          <span className="meta-label">Y min|max (field legend)</span>
           <strong data-testid="timeseries-shared-y-range">
-            {sharedTimeSeriesRange ? `${sharedTimeSeriesRange[0]}|${sharedTimeSeriesRange[1]}` : "n/a"}
+            {timeSeriesYRange ? `${timeSeriesYRange[0]}|${timeSeriesYRange[1]}` : "n/a"}
           </strong>
         </div>
       </section>
