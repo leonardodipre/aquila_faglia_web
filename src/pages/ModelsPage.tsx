@@ -503,6 +503,61 @@ export function computeSpearmanCorrelation(
   return Math.max(-1, Math.min(1, covariance / denominator));
 }
 
+export function buildTemporalSpearmanInputs(
+  sharedSnapshots: ValidationSnapshotDescriptor[],
+  selectedFieldKey: string | null,
+  selectedPair: FamilyModelKeys | null,
+  originalWindowPatchIds: number[],
+  patchMappings: PatchMappings | null,
+  snapshotSeriesCache: Map<string, Map<string, ValidationSnapshotData>>,
+) {
+  const validationTemporalValues: number[] = [];
+  const originalTemporalValues: number[] = [];
+
+  if (!selectedPair || !selectedFieldKey || patchMappings == null || originalWindowPatchIds.length === 0) {
+    return { validationTemporalValues, originalTemporalValues };
+  }
+
+  const validationModelCache = snapshotSeriesCache.get(selectedPair.validationKey);
+  const originalModelCache = snapshotSeriesCache.get(selectedPair.originalKey);
+  if (!validationModelCache || !originalModelCache) {
+    return { validationTemporalValues, originalTemporalValues };
+  }
+
+  const pairedPatchIds = originalWindowPatchIds
+    .map((originalPatchId) => {
+      const mappedValidationPatchId = patchMappings.originalToValidation.get(originalPatchId);
+      if (mappedValidationPatchId == null) {
+        return null;
+      }
+      return [originalPatchId, mappedValidationPatchId] as const;
+    })
+    .filter((pair): pair is readonly [number, number] => pair != null);
+
+  if (pairedPatchIds.length === 0) {
+    return { validationTemporalValues, originalTemporalValues };
+  }
+
+  for (const snapshot of sharedSnapshots) {
+    const validationFieldValues = validationModelCache.get(snapshot.date_key)?.fields[selectedFieldKey];
+    const originalFieldValues = originalModelCache.get(snapshot.date_key)?.fields[selectedFieldKey];
+    if (!validationFieldValues || !originalFieldValues) {
+      continue;
+    }
+
+    for (const [originalPatchId, validationPatchId] of pairedPatchIds) {
+      const originalValue = originalFieldValues[originalPatchId];
+      const validationValue = validationFieldValues[validationPatchId];
+      if (Number.isFinite(validationValue) && Number.isFinite(originalValue)) {
+        validationTemporalValues.push(validationValue);
+        originalTemporalValues.push(originalValue);
+      }
+    }
+  }
+
+  return { validationTemporalValues, originalTemporalValues };
+}
+
 function resolvePatch(
   geometry: ValidationGeometryData | null,
   selectedPatchId: number | null,
@@ -1183,23 +1238,25 @@ export function ModelsPage() {
     spearmanSpatialInputs.validationBlockValues,
   ]);
 
-  const spearmanTemporalInputs = useMemo(() => {
-    const validationTemporalValues: number[] = [];
-    const originalTemporalValues: number[] = [];
-    const pairCount = Math.min(validationPatchSeries.length, originalPatchSeries.length);
-
-    for (let pairIndex = 0; pairIndex < pairCount; pairIndex += 1) {
-      const validationValue = validationPatchSeries[pairIndex];
-      const originalValue = originalPatchSeries[pairIndex];
-      if (!Number.isFinite(validationValue) || !Number.isFinite(originalValue)) {
-        continue;
-      }
-      validationTemporalValues.push(validationValue);
-      originalTemporalValues.push(originalValue);
-    }
-
-    return { validationTemporalValues, originalTemporalValues };
-  }, [originalPatchSeries, validationPatchSeries]);
+  const spearmanTemporalInputs = useMemo(
+    () =>
+      buildTemporalSpearmanInputs(
+        sharedSnapshots,
+        selectedFieldKey,
+        selectedPair,
+        originalWindowPatchIds,
+        patchMappings,
+        snapshotSeriesCacheRef.current,
+      ),
+    [
+      originalWindowPatchIds,
+      patchMappings,
+      selectedFieldKey,
+      selectedPair,
+      sharedSnapshots,
+      seriesCacheVersion,
+    ],
+  );
 
   const spearmanTemporalPairCount = spearmanTemporalInputs.validationTemporalValues.length;
   const spearmanTemporalRho = useMemo(() => {
@@ -1481,47 +1538,66 @@ export function ModelsPage() {
         ) : null}
 
         <div className="compare-series-meta">
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Y min|max (field legend)</span>
-            <strong data-testid="timeseries-shared-y-range">
-              {timeSeriesYRange ? `${timeSeriesYRange[0]}|${timeSeriesYRange[1]}` : "n/a"}
-            </strong>
+          <div className="compare-series-meta-group">
+            <div className="compare-series-meta-group-head">
+              <p className="eyebrow">Parte spaziale</p>
+              <h4>Patch nel blocco NxN della patch attiva</h4>
+            </div>
+            <div className="compare-series-meta-group-body">
+              <div className="compare-series-meta-item">
+                <span className="meta-label">Window</span>
+                <strong data-testid="timeseries-window-size">{selectedWindowSize}x{selectedWindowSize}</strong>
+              </div>
+              <div className="compare-series-meta-item">
+                <span className="meta-label">Aggregazione</span>
+                <strong data-testid="timeseries-aggregation-mode">{aggregationLabel}</strong>
+              </div>
+              <div className="compare-series-meta-item">
+                <span className="meta-label">Spearman rho (spatial NxN)</span>
+                <strong data-testid="timeseries-spearman-rho">
+                  {spearmanSpatialRho != null ? formatCompactNumber(spearmanSpatialRho, 4) : "n/a"}
+                </strong>
+              </div>
+              <div className="compare-series-meta-item">
+                <span className="meta-label">Spatial pairs</span>
+                <strong data-testid="timeseries-spearman-count">{spearmanSpatialPairCount}</strong>
+              </div>
+              <p className="compare-series-group-note">
+                La parte spaziale confronta le patch corrispondenti nel blocco selezionato allo snapshot attivo.
+                Prima si aggrega il blocco in un singolo valore per patch, poi si calcola Spearman sulle coppie
+                validate Original/Validation.
+              </p>
+            </div>
           </div>
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Window</span>
-            <strong data-testid="timeseries-window-size">
-              {selectedWindowSize}x{selectedWindowSize}
-            </strong>
-          </div>
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Aggregazione</span>
-            <strong data-testid="timeseries-aggregation-mode">{aggregationLabel}</strong>
-          </div>
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Spearman rho (spatial NxN)</span>
-            <strong data-testid="timeseries-spearman-rho">
-              {spearmanSpatialRho != null ? formatCompactNumber(spearmanSpatialRho, 4) : "n/a"}
-            </strong>
-          </div>
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Spatial pairs</span>
-            <strong data-testid="timeseries-spearman-count">{spearmanSpatialPairCount}</strong>
-          </div>
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Spearman rho (temporal)</span>
-            <strong data-testid="timeseries-spearman-rho-macro">
-              {spearmanTemporalRho != null ? formatCompactNumber(spearmanTemporalRho, 4) : "n/a"}
-            </strong>
-          </div>
-          <div className="compare-series-meta-item">
-            <span className="meta-label">Temporal pairs</span>
-            <strong data-testid="timeseries-spearman-count-macro">{spearmanTemporalPairCount}</strong>
+
+          <div className="compare-series-meta-group">
+            <div className="compare-series-meta-group-head">
+              <p className="eyebrow">Parte temporale</p>
+              <h4>Serie aggregate sui snapshot condivisi</h4>
+            </div>
+            <div className="compare-series-meta-group-body">
+              <div className="compare-series-meta-item">
+                <span className="meta-label">Spearman rho (temporal)</span>
+                <strong data-testid="timeseries-spearman-rho-macro">
+                  {spearmanTemporalRho != null ? formatCompactNumber(spearmanTemporalRho, 4) : "n/a"}
+                </strong>
+              </div>
+              <div className="compare-series-meta-item">
+                <span className="meta-label">Temporal pairs</span>
+                <strong data-testid="timeseries-spearman-count-macro">{spearmanTemporalPairCount}</strong>
+              </div>
+              <p className="compare-series-group-note">
+                La parte temporale usa tutte le coppie patch x snapshot del blocco selezionato. Questo rende la
+                misura più robusta rispetto alla sola mini patch e racconta come evolve il campo nel tempo, non solo
+                in un singolo istante.
+              </p>
+            </div>
           </div>
         </div>
         <p className="compare-series-footnote">
           Spearman micro: correlazione spaziale patch-by-patch nel blocco NxN allo snapshot attivo. Spearman macro:
-          correlazione temporale tra le due serie aggregate del blocco sugli snapshot condivisi. Se le coppie valide
-          sono meno di 3, il valore è mostrato come n/a.
+          correlazione sulle coppie patch x snapshot del blocco selezionato. Se le coppie valide sono meno di 3, il
+          valore è mostrato come n/a.
         </p>
       </section>
 

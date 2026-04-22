@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  buildTemporalSpearmanInputs,
   computePatchMappings,
   computeSpearmanCorrelation,
   computeWindowPatchIds,
@@ -320,6 +321,73 @@ describe("ModelsPage compare", () => {
     expect(computeSpearmanCorrelation([1], [2])).toBeNull();
   });
 
+  it("builds temporal spearman inputs from all patch x snapshot pairs", () => {
+    const sharedSnapshots = [
+      { date: "2025-12-31T00:00:00", date_key: "2025-12-31", path: "x" },
+      { date: "2000-01-01T00:00:00", date_key: "2000-01-01", path: "x" },
+    ];
+    const selectedPair = { validationKey: "validation", originalKey: "original" };
+    const patchMappings = {
+      originalToValidation: new Map([
+        [0, 0],
+        [1, 1],
+      ]),
+      validationToOriginal: new Map([
+        [0, 0],
+        [1, 1],
+      ]),
+    };
+    const snapshotSeriesCache = new Map([
+      [
+        "validation",
+        new Map([
+          [
+            "2025-12-31",
+            {
+              fields: { slip_m: [1, 4] },
+            },
+          ],
+          [
+            "2000-01-01",
+            {
+              fields: { slip_m: [3, 2] },
+            },
+          ],
+        ]),
+      ],
+      [
+        "original",
+        new Map([
+          [
+            "2025-12-31",
+            {
+              fields: { slip_m: [2, 3] },
+            },
+          ],
+          [
+            "2000-01-01",
+            {
+              fields: { slip_m: [4, 1] },
+            },
+          ],
+        ]),
+      ],
+    ]) as Map<string, Map<string, { fields: { slip_m: number[] } }>>;
+
+    const inputs = buildTemporalSpearmanInputs(
+      sharedSnapshots,
+      "slip_m",
+      selectedPair,
+      [0, 1],
+      patchMappings,
+      snapshotSeriesCache as unknown as Map<string, Map<string, { fields: { slip_m: number[] } }>>,
+    );
+
+    expect(inputs.validationTemporalValues).toEqual([1, 4, 3, 2]);
+    expect(inputs.originalTemporalValues).toEqual([2, 3, 4, 1]);
+    expect(computeSpearmanCorrelation(inputs.validationTemporalValues, inputs.originalTemporalValues)).not.toBe(1);
+  });
+
   beforeEach(() => {
     global.fetch = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
@@ -448,7 +516,6 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("original-selected-patch-id")).toHaveTextContent("0");
       expect(screen.getByTestId("validation-selected-patch-id")).toHaveTextContent("0");
       expect(screen.getByTestId("compare-timeseries-chart")).toBeInTheDocument();
-      expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.5|1.7");
       expect(screen.getByTestId("timeseries-window-size")).toHaveTextContent("1x1");
       expect(screen.getByTestId("timeseries-aggregation-mode")).toHaveTextContent("Media");
       expect(screen.getByTestId("timeseries-spearman-count")).toHaveTextContent("1");
