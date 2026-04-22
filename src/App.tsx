@@ -8,6 +8,9 @@ const OverviewPage = lazy(() =>
 const ModelsPage = lazy(() =>
   import("./pages/ModelsPage").then((module) => ({ default: module.ModelsPage })),
 );
+const ReadmePage = lazy(() =>
+  import("./pages/ReadmePage").then((module) => ({ default: module.ReadmePage })),
+);
 
 export function App() {
   return (
@@ -32,6 +35,12 @@ export function App() {
           >
             Modelli Compare
           </NavLink>
+          <NavLink
+            to="/readme"
+            className={({ isActive }) => (isActive ? "nav-pill nav-pill-active" : "nav-pill")}
+          >
+            README
+          </NavLink>
         </nav>
       </header>
 
@@ -41,6 +50,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<OverviewPage />} />
               <Route path="/modelli" element={<ModelsPage />} />
+              <Route path="/readme" element={<ReadmePage />} />
             </Routes>
           </Suspense>
         </ErrorBoundary>

@@ -9,6 +9,9 @@ vi.mock("./pages/OverviewPage", () => ({
 vi.mock("./pages/ModelsPage", () => ({
   ModelsPage: () => <div>Models Mock</div>,
 }));
+vi.mock("./pages/ReadmePage", () => ({
+  ReadmePage: () => <div>Readme Mock</div>,
+}));
 
 import { App } from "./App";
 
@@ -31,5 +34,15 @@ describe("App routes", () => {
     );
 
     expect(await screen.findByText("Models Mock")).toBeInTheDocument();
+  });
+
+  it("renders the readme route", async () => {
+    render(
+      <MemoryRouter initialEntries={["/readme"]}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText("Readme Mock")).toBeInTheDocument();
   });
 });
