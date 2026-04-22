@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ColorLegend } from "../components/ColorLegend";
 import {
   loadValidationGeometry,
@@ -127,6 +127,22 @@ interface FaultPlotProps {
   selectedPatchId: number | null;
   onHoverPatch: (patchId: number | null) => void;
   onSelectPatch: (patchId: number | null) => void;
+  testId: string;
+}
+
+interface PatchMappings {
+  originalToValidation: Map<number, number>;
+  validationToOriginal: Map<number, number>;
+}
+
+interface PatchTimeSeriesChartProps {
+  title: string;
+  values: number[];
+  snapshots: ValidationSnapshotDescriptor[];
+  sharedYRange: [number, number] | null;
+  activeSnapshotIndex: number;
+  units: string;
+  lineColor: string;
   testId: string;
 }
 
@@ -298,6 +314,66 @@ export function buildSharedFieldMeta(
   };
 }
 
+function findNearestPatchId(
+  targetLengthKm: number,
+  targetDepthKm: number,
+  candidates: Array<{ id: number; lengthKm: number; depthKm: number }>,
+) {
+  let nearestId = candidates[0]?.id ?? 0;
+  let nearestDistance = Number.POSITIVE_INFINITY;
+
+  for (const candidate of candidates) {
+    const deltaLength = candidate.lengthKm - targetLengthKm;
+    const deltaDepth = candidate.depthKm - targetDepthKm;
+    const distance = deltaLength * deltaLength + deltaDepth * deltaDepth;
+    if (distance < nearestDistance) {
+      nearestDistance = distance;
+      nearestId = candidate.id;
+    }
+  }
+
+  return nearestId;
+}
+
+export function computePatchMappings(
+  validationGeometry: ValidationGeometryData | null,
+  originalGeometry: ValidationGeometryData | null,
+  originalOffsetKm: number,
+): PatchMappings | null {
+  if (!validationGeometry || !originalGeometry) {
+    return null;
+  }
+
+  const validationCenters = validationGeometry.patches.map((patch) => ({
+    id: patch.id,
+    lengthKm: patch.center_length_km,
+    depthKm: patch.center_depth_km,
+  }));
+  const originalAlignedCenters = originalGeometry.patches.map((patch) => ({
+    id: patch.id,
+    lengthKm: patch.center_length_km + originalOffsetKm,
+    depthKm: patch.center_depth_km,
+  }));
+
+  const originalToValidation = new Map<number, number>();
+  for (const originalPatch of originalAlignedCenters) {
+    originalToValidation.set(
+      originalPatch.id,
+      findNearestPatchId(originalPatch.lengthKm, originalPatch.depthKm, validationCenters),
+    );
+  }
+
+  const validationToOriginal = new Map<number, number>();
+  for (const validationPatch of validationCenters) {
+    validationToOriginal.set(
+      validationPatch.id,
+      findNearestPatchId(validationPatch.lengthKm, validationPatch.depthKm, originalAlignedCenters),
+    );
+  }
+
+  return { originalToValidation, validationToOriginal };
+}
+
 function resolvePatch(
   geometry: ValidationGeometryData | null,
   selectedPatchId: number | null,
@@ -456,6 +532,125 @@ function FaultPlot({
   );
 }
 
+function buildLinePath(
+  values: number[],
+  xScale: (index: number) => number,
+  yScale: (value: number) => number,
+) {
+  const segments: string[] = [];
+  values.forEach((value, index) => {
+    if (!Number.isFinite(value)) {
+      return;
+    }
+    const command = segments.length === 0 ? "M" : "L";
+    segments.push(`${command}${xScale(index)} ${yScale(value)}`);
+  });
+  return segments.join(" ");
+}
+
+function PatchTimeSeriesChart({
+  title,
+  values,
+  snapshots,
+  sharedYRange,
+  activeSnapshotIndex,
+  units,
+  lineColor,
+  testId,
+}: PatchTimeSeriesChartProps) {
+  if (!sharedYRange || snapshots.length === 0) {
+    return <div className="loading-state">Nessuna serie disponibile.</div>;
+  }
+
+  const [yMin, yMax] = sharedYRange;
+  const viewWidth = 760;
+  const viewHeight = 240;
+  const paddingLeft = 52;
+  const paddingRight = 18;
+  const paddingTop = 20;
+  const paddingBottom = 42;
+  const drawWidth = viewWidth - paddingLeft - paddingRight;
+  const drawHeight = viewHeight - paddingTop - paddingBottom;
+  const xDenominator = Math.max(snapshots.length - 1, 1);
+  const yDenominator = Math.max(yMax - yMin, 1e-12);
+  const xScale = (index: number) => paddingLeft + (index / xDenominator) * drawWidth;
+  const yScale = (value: number) => paddingTop + ((yMax - value) / yDenominator) * drawHeight;
+  const activeValue = values[activeSnapshotIndex];
+  const activeX = xScale(Math.min(Math.max(activeSnapshotIndex, 0), snapshots.length - 1));
+  const activeY = Number.isFinite(activeValue) ? yScale(activeValue) : null;
+  const linePath = buildLinePath(values, xScale, yScale);
+
+  return (
+    <div className="patch-series-card">
+      <div className="fault-compare-head">
+        <h4>{title}</h4>
+        <span className="pill-muted">{units || "unitless"}</span>
+      </div>
+      <div className="patch-series-shell">
+        <svg
+          className="patch-series-svg"
+          data-testid={testId}
+          viewBox={`0 0 ${viewWidth} ${viewHeight}`}
+          role="img"
+          aria-label={`${title} snapshot chart`}
+        >
+          <rect x={0} y={0} width={viewWidth} height={viewHeight} fill="#f3efe3" />
+          <rect
+            x={paddingLeft}
+            y={paddingTop}
+            width={drawWidth}
+            height={drawHeight}
+            rx={12}
+            fill="#fffdfa"
+            stroke="rgba(24, 33, 43, 0.12)"
+          />
+          <line x1={paddingLeft} y1={paddingTop} x2={paddingLeft} y2={paddingTop + drawHeight} className="series-axis-line" />
+          <line
+            x1={paddingLeft}
+            y1={paddingTop + drawHeight}
+            x2={paddingLeft + drawWidth}
+            y2={paddingTop + drawHeight}
+            className="series-axis-line"
+          />
+          {linePath ? (
+            <path
+              d={linePath}
+              fill="none"
+              stroke={lineColor}
+              strokeWidth={2.2}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          ) : null}
+          <line
+            x1={activeX}
+            y1={paddingTop}
+            x2={activeX}
+            y2={paddingTop + drawHeight}
+            className="series-active-line"
+          />
+          {activeY != null ? <circle cx={activeX} cy={activeY} r={4.1} fill={lineColor} /> : null}
+          <text x={paddingLeft} y={viewHeight - 10} className="series-label">
+            {formatDateLabel(snapshots[0].date)}
+          </text>
+          <text x={activeX + 6} y={viewHeight - 10} className="series-label">
+            {formatDateLabel(snapshots[Math.min(Math.max(activeSnapshotIndex, 0), snapshots.length - 1)].date)}
+          </text>
+          <text x={paddingLeft + drawWidth - 110} y={viewHeight - 10} className="series-label">
+            {formatDateLabel(snapshots[snapshots.length - 1].date)}
+          </text>
+          <text x={8} y={paddingTop + 12} className="series-label">
+            {formatScientific(yMax)}
+          </text>
+          <text x={8} y={paddingTop + drawHeight} className="series-label">
+            {formatScientific(yMin)}
+          </text>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export function ModelsPage() {
   const [catalog, setCatalog] = useState<ValidationModelCatalog | null>(null);
   const [selectedFamily, setSelectedFamily] = useState<FamilyKey>("V1");
@@ -480,6 +675,11 @@ export function ModelsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [modelsLoading, setModelsLoading] = useState(false);
   const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [seriesLoading, setSeriesLoading] = useState(false);
+  const [seriesLoadError, setSeriesLoadError] = useState<string | null>(null);
+  const [seriesRequested, setSeriesRequested] = useState(false);
+  const [seriesCacheVersion, setSeriesCacheVersion] = useState(0);
+  const snapshotSeriesCacheRef = useRef<Map<string, Map<string, ValidationSnapshotData>>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -532,6 +732,10 @@ export function ModelsPage() {
     setOriginalSnapshot(null);
     setHoveredValidationPatchId(null);
     setHoveredOriginalPatchId(null);
+    setSeriesRequested(false);
+    setSeriesLoadError(null);
+    snapshotSeriesCacheRef.current = new Map();
+    setSeriesCacheVersion((version) => version + 1);
 
     let cancelled = false;
 
@@ -613,6 +817,19 @@ export function ModelsPage() {
         }
         setValidationSnapshot(validationSnapshotPayload);
         setOriginalSnapshot(originalSnapshotPayload);
+        const validationCache =
+          snapshotSeriesCacheRef.current.get(selectedPair.validationKey) ?? new Map<string, ValidationSnapshotData>();
+        const originalCache =
+          snapshotSeriesCacheRef.current.get(selectedPair.originalKey) ?? new Map<string, ValidationSnapshotData>();
+        const hadValidationSnapshot = validationCache.has(selectedSnapshotKey);
+        const hadOriginalSnapshot = originalCache.has(selectedSnapshotKey);
+        validationCache.set(selectedSnapshotKey, validationSnapshotPayload);
+        originalCache.set(selectedSnapshotKey, originalSnapshotPayload);
+        snapshotSeriesCacheRef.current.set(selectedPair.validationKey, validationCache);
+        snapshotSeriesCacheRef.current.set(selectedPair.originalKey, originalCache);
+        if (!hadValidationSnapshot || !hadOriginalSnapshot) {
+          setSeriesCacheVersion((version) => version + 1);
+        }
         setLoadError(null);
       })
       .catch((error: Error) => {
@@ -685,6 +902,35 @@ export function ModelsPage() {
     ] as [number, number];
   }, [originalGeometry, originalOffsetKm, validationGeometry]);
 
+  const patchMappings = useMemo(
+    () => computePatchMappings(validationGeometry, originalGeometry, originalOffsetKm),
+    [originalGeometry, originalOffsetKm, validationGeometry],
+  );
+
+  const handleSelectValidationPatch = (patchId: number | null) => {
+    setSelectedValidationPatchId(patchId);
+    if (patchId == null) {
+      return;
+    }
+    setSeriesRequested(true);
+    const mappedOriginal = patchMappings?.validationToOriginal.get(patchId);
+    if (mappedOriginal != null) {
+      setSelectedOriginalPatchId(mappedOriginal);
+    }
+  };
+
+  const handleSelectOriginalPatch = (patchId: number | null) => {
+    setSelectedOriginalPatchId(patchId);
+    if (patchId == null) {
+      return;
+    }
+    setSeriesRequested(true);
+    const mappedValidation = patchMappings?.originalToValidation.get(patchId);
+    if (mappedValidation != null) {
+      setSelectedValidationPatchId(mappedValidation);
+    }
+  };
+
   const validationPatch = useMemo(
     () => resolvePatch(validationGeometry, selectedValidationPatchId, hoveredValidationPatchId),
     [hoveredValidationPatchId, selectedValidationPatchId, validationGeometry],
@@ -702,6 +948,118 @@ export function ModelsPage() {
 
   const originalPatchValue =
     originalPatch && originalPatch.id < originalValues.length ? originalValues[originalPatch.id] : null;
+
+  useEffect(() => {
+    if (!seriesRequested || !selectedPair || sharedSnapshots.length === 0) {
+      return;
+    }
+
+    const snapshotKeys = sharedSnapshots.map((snapshot) => snapshot.date_key);
+    const hasAllSnapshots = (modelKey: string) => {
+      const modelCache = snapshotSeriesCacheRef.current.get(modelKey);
+      return (
+        modelCache != null &&
+        snapshotKeys.every((snapshotKey) => modelCache.has(snapshotKey))
+      );
+    };
+
+    if (hasAllSnapshots(selectedPair.validationKey) && hasAllSnapshots(selectedPair.originalKey)) {
+      return;
+    }
+
+    setSeriesLoading(true);
+    setSeriesLoadError(null);
+    let cancelled = false;
+
+    const ensureModelSnapshots = async (modelKey: string) => {
+      const modelCache = snapshotSeriesCacheRef.current.get(modelKey) ?? new Map<string, ValidationSnapshotData>();
+      const missingSnapshotKeys = snapshotKeys.filter((snapshotKey) => !modelCache.has(snapshotKey));
+      if (missingSnapshotKeys.length === 0) {
+        snapshotSeriesCacheRef.current.set(modelKey, modelCache);
+        return;
+      }
+
+      const loadedSnapshots = await Promise.all(
+        missingSnapshotKeys.map((snapshotKey) =>
+          loadValidationSnapshot(modelKey, snapshotKey).then((payload) => ({ snapshotKey, payload })),
+        ),
+      );
+
+      for (const loadedSnapshot of loadedSnapshots) {
+        modelCache.set(loadedSnapshot.snapshotKey, loadedSnapshot.payload);
+      }
+      snapshotSeriesCacheRef.current.set(modelKey, modelCache);
+    };
+
+    Promise.all([
+      ensureModelSnapshots(selectedPair.validationKey),
+      ensureModelSnapshots(selectedPair.originalKey),
+    ])
+      .then(() => {
+        if (!cancelled) {
+          setSeriesCacheVersion((version) => version + 1);
+        }
+      })
+      .catch((error: Error) => {
+        if (!cancelled) {
+          setSeriesLoadError(error.message);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setSeriesLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPair, sharedSnapshots, seriesRequested]);
+
+  const validationPatchSeries = useMemo(() => {
+    if (!selectedPair || selectedValidationPatchId == null || !selectedFieldKey) {
+      return [] as number[];
+    }
+    const modelCache = snapshotSeriesCacheRef.current.get(selectedPair.validationKey);
+    return sharedSnapshots.map((snapshot) => {
+      const snapshotData = modelCache?.get(snapshot.date_key);
+      const fieldValues = snapshotData?.fields[selectedFieldKey];
+      return fieldValues && selectedValidationPatchId < fieldValues.length
+        ? fieldValues[selectedValidationPatchId]
+        : Number.NaN;
+    });
+  }, [selectedPair, selectedValidationPatchId, selectedFieldKey, sharedSnapshots, seriesCacheVersion]);
+
+  const originalPatchSeries = useMemo(() => {
+    if (!selectedPair || selectedOriginalPatchId == null || !selectedFieldKey) {
+      return [] as number[];
+    }
+    const modelCache = snapshotSeriesCacheRef.current.get(selectedPair.originalKey);
+    return sharedSnapshots.map((snapshot) => {
+      const snapshotData = modelCache?.get(snapshot.date_key);
+      const fieldValues = snapshotData?.fields[selectedFieldKey];
+      return fieldValues && selectedOriginalPatchId < fieldValues.length
+        ? fieldValues[selectedOriginalPatchId]
+        : Number.NaN;
+    });
+  }, [selectedPair, selectedOriginalPatchId, selectedFieldKey, sharedSnapshots, seriesCacheVersion]);
+
+  const sharedTimeSeriesRange = useMemo(() => {
+    const finiteValues = [...validationPatchSeries, ...originalPatchSeries].filter((value) =>
+      Number.isFinite(value),
+    );
+    if (finiteValues.length === 0) {
+      return null;
+    }
+    let min = Math.min(...finiteValues);
+    let max = Math.max(...finiteValues);
+    if (min === max) {
+      const pad = Math.max(Math.abs(min) * 0.05, 1e-12);
+      min -= pad;
+      max += pad;
+    }
+    return [min, max] as [number, number];
+  }, [originalPatchSeries, validationPatchSeries]);
 
   const controlsDisabled = !catalog || !validationIndex || !originalIndex || !selectedPair;
 
@@ -883,7 +1241,7 @@ export function ModelsPage() {
             hoveredPatchId={hoveredValidationPatchId}
             selectedPatchId={selectedValidationPatchId}
             onHoverPatch={setHoveredValidationPatchId}
-            onSelectPatch={setSelectedValidationPatchId}
+            onSelectPatch={handleSelectValidationPatch}
             testId="validation-fault-canvas"
           />
 
@@ -897,9 +1255,59 @@ export function ModelsPage() {
             hoveredPatchId={hoveredOriginalPatchId}
             selectedPatchId={selectedOriginalPatchId}
             onHoverPatch={setHoveredOriginalPatchId}
-            onSelectPatch={setSelectedOriginalPatchId}
+            onSelectPatch={handleSelectOriginalPatch}
             testId="original-fault-canvas"
           />
+        </div>
+      </section>
+
+      <section className="panel rise compare-timeseries-panel">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">Serie patch</p>
+            <h3>Valore patch su tutti gli snapshot condivisi</h3>
+          </div>
+          <span className="pill-muted">
+            {selectedFieldKey || "n/a"}
+          </span>
+        </div>
+
+        {!seriesRequested ? (
+          <p className="panel-note">Clicca una patch per caricare i grafici temporali Original/Validation.</p>
+        ) : null}
+        {seriesRequested && seriesLoading ? <p className="panel-note">Loading series...</p> : null}
+        {seriesRequested && seriesLoadError ? <p className="panel-note">{seriesLoadError}</p> : null}
+
+        {seriesRequested && !seriesLoading && !seriesLoadError ? (
+          <div className="compare-series-grid">
+            <PatchTimeSeriesChart
+              title="Validation"
+              values={validationPatchSeries}
+              snapshots={sharedSnapshots}
+              sharedYRange={sharedTimeSeriesRange}
+              activeSnapshotIndex={selectedSnapshotIndex}
+              units={sharedFieldMeta?.units ?? "unitless"}
+              lineColor="#0f4c5c"
+              testId="validation-timeseries-chart"
+            />
+            <PatchTimeSeriesChart
+              title="Original"
+              values={originalPatchSeries}
+              snapshots={sharedSnapshots}
+              sharedYRange={sharedTimeSeriesRange}
+              activeSnapshotIndex={selectedSnapshotIndex}
+              units={sharedFieldMeta?.units ?? "unitless"}
+              lineColor="#c37211"
+              testId="original-timeseries-chart"
+            />
+          </div>
+        ) : null}
+
+        <div className="compare-series-meta">
+          <span className="meta-label">Y shared range</span>
+          <strong data-testid="timeseries-shared-y-range">
+            {sharedTimeSeriesRange ? `${sharedTimeSeriesRange[0]}|${sharedTimeSeriesRange[1]}` : "n/a"}
+          </strong>
         </div>
       </section>
 
@@ -919,7 +1327,7 @@ export function ModelsPage() {
               <div className="station-meta-grid">
                 <div>
                   <span className="meta-label">Patch</span>
-                  <strong>{validationPatch.id}</strong>
+                  <strong data-testid="validation-selected-patch-id">{validationPatch.id}</strong>
                 </div>
                 <div>
                   <span className="meta-label">Value</span>
@@ -947,7 +1355,7 @@ export function ModelsPage() {
               <div className="station-meta-grid">
                 <div>
                   <span className="meta-label">Patch</span>
-                  <strong>{originalPatch.id}</strong>
+                  <strong data-testid="original-selected-patch-id">{originalPatch.id}</strong>
                 </div>
                 <div>
                   <span className="meta-label">Value</span>

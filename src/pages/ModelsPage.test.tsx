@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ModelsPage } from "./ModelsPage";
+import { computePatchMappings, ModelsPage } from "./ModelsPage";
 
 const base = "/aquila_faglia_web";
 
@@ -131,6 +131,22 @@ function makeGeometry(referenceLength: number, lengthExtent: [number, number]) {
         projected_depth_km: 0,
         source: "test",
       },
+      {
+        label: "Preturo",
+        longitude: 13.29197,
+        latitude: 42.3885,
+        projected_length_km: referenceLength + 1,
+        projected_depth_km: 0,
+        source: "test",
+      },
+      {
+        label: "Pizzoli",
+        longitude: 13.3,
+        latitude: 42.43333,
+        projected_length_km: referenceLength - 1,
+        projected_depth_km: 0,
+        source: "test",
+      },
     ],
     patches: [
       {
@@ -249,9 +265,9 @@ function payloadForUrl(url: string) {
   if (geometryMatch) {
     const modelKey = geometryMatch[1];
     if (modelKey.includes("_original_")) {
-      return makeGeometry(5, [0, 65]);
+      return makeGeometry(5, [0, 5]);
     }
-    return makeGeometry(30, [0, 120]);
+    return makeGeometry(30, [25, 30]);
   }
 
   const indexMatch = url.match(new RegExp(`${base}/validation/models/(.+)/index\\.json$`));
@@ -273,6 +289,18 @@ function payloadForUrl(url: string) {
 describe("ModelsPage compare", () => {
   afterEach(() => {
     cleanup();
+  });
+
+  it("computes nearest physical mapping between aligned geometries", () => {
+    const validationGeometry = makeGeometry(30, [25, 30]);
+    const originalGeometry = makeGeometry(5, [0, 5]);
+    const mappings = computePatchMappings(validationGeometry, originalGeometry, 25);
+
+    expect(mappings).not.toBeNull();
+    expect(mappings?.originalToValidation.get(0)).toBe(0);
+    expect(mappings?.originalToValidation.get(1)).toBe(1);
+    expect(mappings?.validationToOriginal.get(0)).toBe(0);
+    expect(mappings?.validationToOriginal.get(1)).toBe(1);
   });
 
   beforeEach(() => {
@@ -378,6 +406,51 @@ describe("ModelsPage compare", () => {
     await waitFor(() => {
       expect(screen.getByTestId("shared-scale-range")).toHaveTextContent("1|20");
       expect(screen.getByTestId("alignment-offset-km")).toHaveTextContent("25.000000");
+    });
+  });
+
+  it("cross-selects mapped patch on click and lazy-loads cached time series", async () => {
+    render(<ModelsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("validation-model-key")).toHaveTextContent(modelKeys.v1ValidationFinal);
+    });
+
+    fireEvent.change(screen.getByLabelText("Famiglia"), { target: { value: "V2" } });
+    await waitFor(() => {
+      expect(screen.getByTestId("validation-model-key")).toHaveTextContent(modelKeys.v2ValidationFinal);
+    });
+
+    expect(screen.queryByTestId("validation-timeseries-chart")).not.toBeInTheDocument();
+
+    const originalCanvas = await screen.findByTestId("original-fault-canvas");
+    const originalPolygons = originalCanvas.querySelectorAll("polygon");
+    fireEvent.click(originalPolygons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("original-selected-patch-id")).toHaveTextContent("0");
+      expect(screen.getByTestId("validation-selected-patch-id")).toHaveTextContent("0");
+      expect(screen.getByTestId("validation-timeseries-chart")).toBeInTheDocument();
+      expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.2|1.5");
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      `${base}/validation/models/${modelKeys.v2ValidationFinal}/snapshots/2000-01-01.json`,
+    );
+    expect(global.fetch).toHaveBeenCalledWith(
+      `${base}/validation/models/${modelKeys.v2OriginalFinal}/snapshots/2000-01-01.json`,
+    );
+
+    const fetchCallCountAfterFirstClick = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+
+    const validationCanvas = await screen.findByTestId("validation-fault-canvas");
+    const validationPolygons = validationCanvas.querySelectorAll("polygon");
+    fireEvent.click(validationPolygons[1]);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("validation-selected-patch-id")).toHaveTextContent("1");
+      expect(screen.getByTestId("original-selected-patch-id")).toHaveTextContent("1");
+      expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(fetchCallCountAfterFirstClick);
     });
   });
 });

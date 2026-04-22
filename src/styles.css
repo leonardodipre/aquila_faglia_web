@@ -344,6 +344,59 @@ select {
   grid-column: 2 / 3;
 }
 
+.compare-timeseries-panel {
+  grid-column: 2 / 3;
+}
+
+.compare-series-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.patch-series-card {
+  border: 1px solid rgba(24, 33, 43, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px;
+}
+
+.patch-series-shell {
+  border-radius: 12px;
+  border: 1px solid rgba(24, 33, 43, 0.08);
+  overflow: hidden;
+}
+
+.patch-series-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.series-axis-line {
+  stroke: rgba(24, 33, 43, 0.36);
+  stroke-width: 1.2;
+}
+
+.series-active-line {
+  stroke: rgba(15, 76, 92, 0.62);
+  stroke-width: 1.4;
+  stroke-dasharray: 6 5;
+}
+
+.series-label {
+  fill: #5f6770;
+  font-size: 11px;
+}
+
+.compare-series-meta {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
 .compare-inspector-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -475,6 +528,10 @@ select {
   .compare-inspector-panel {
     grid-column: auto;
   }
+
+  .compare-timeseries-panel {
+    grid-column: auto;
+  }
 }
 
 @media (max-width: 720px) {
@@ -493,6 +550,10 @@ select {
   }
 
   .compare-inspector-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-series-grid {
     grid-template-columns: 1fr;
   }
 
