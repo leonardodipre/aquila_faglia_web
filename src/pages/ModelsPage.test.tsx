@@ -451,14 +451,16 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.5|1.7");
       expect(screen.getByTestId("timeseries-window-size")).toHaveTextContent("1x1");
       expect(screen.getByTestId("timeseries-aggregation-mode")).toHaveTextContent("Media");
-      expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("1");
+      expect(screen.getByTestId("timeseries-spearman-count")).toHaveTextContent("1");
+      expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("n/a");
     });
 
     fireEvent.change(screen.getByLabelText("Finestra area"), { target: { value: "3" } });
 
     await waitFor(() => {
       expect(screen.getByTestId("timeseries-window-size")).toHaveTextContent("3x3");
-      expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("1");
+      expect(screen.getByTestId("timeseries-spearman-count")).toHaveTextContent("2");
+      expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("n/a");
     });
 
     expect(global.fetch).toHaveBeenCalledWith(

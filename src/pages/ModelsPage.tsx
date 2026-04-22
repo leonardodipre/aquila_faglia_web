@@ -1141,10 +1141,43 @@ export function ModelsPage() {
   }, [sharedFieldMeta]);
 
   const timeSeriesYRange = plotLegendRange ?? sharedTimeSeriesRange;
-  const spearmanRho = useMemo(
-    () => computeSpearmanCorrelation(validationPatchSeries, originalPatchSeries),
-    [originalPatchSeries, validationPatchSeries],
-  );
+  const spearmanSpatialInputs = useMemo(() => {
+    const validationBlockValues: number[] = [];
+    const originalBlockValues: number[] = [];
+
+    if (!patchMappings) {
+      return { validationBlockValues, originalBlockValues };
+    }
+
+    for (const originalPatchId of originalWindowPatchIds) {
+      const mappedValidationPatchId = patchMappings.originalToValidation.get(originalPatchId);
+      if (mappedValidationPatchId == null) {
+        continue;
+      }
+
+      const originalValue = originalValues[originalPatchId];
+      const validationValue = validationValues[mappedValidationPatchId];
+      if (!Number.isFinite(originalValue) || !Number.isFinite(validationValue)) {
+        continue;
+      }
+
+      originalBlockValues.push(originalValue);
+      validationBlockValues.push(validationValue);
+    }
+
+    return { validationBlockValues, originalBlockValues };
+  }, [originalValues, originalWindowPatchIds, patchMappings, validationValues]);
+
+  const spearmanSampleCount = spearmanSpatialInputs.originalBlockValues.length;
+  const spearmanRho = useMemo(() => {
+    if (spearmanSampleCount < 3) {
+      return null;
+    }
+    return computeSpearmanCorrelation(
+      spearmanSpatialInputs.validationBlockValues,
+      spearmanSpatialInputs.originalBlockValues,
+    );
+  }, [spearmanSampleCount, spearmanSpatialInputs.originalBlockValues, spearmanSpatialInputs.validationBlockValues]);
 
   const controlsDisabled = !catalog || !validationIndex || !originalIndex || !selectedPair;
   const aggregationLabel =
@@ -1428,10 +1461,14 @@ export function ModelsPage() {
             <strong data-testid="timeseries-aggregation-mode">{aggregationLabel}</strong>
           </div>
           <div className="compare-series-meta-item">
-            <span className="meta-label">Spearman rho</span>
+            <span className="meta-label">Spearman rho (spatial NxN)</span>
             <strong data-testid="timeseries-spearman-rho">
               {spearmanRho != null ? formatCompactNumber(spearmanRho, 4) : "n/a"}
             </strong>
+          </div>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Spearman pairs</span>
+            <strong data-testid="timeseries-spearman-count">{spearmanSampleCount}</strong>
           </div>
         </div>
       </section>
