@@ -3,21 +3,19 @@ import uPlot from "uplot";
 import { formatDateLabel } from "../lib/format";
 
 interface PatchSeriesChartProps {
-  title: string;
   dates: string[];
-  values: number[];
+  validationValues: number[];
+  originalValues: number[];
   units: string;
-  color: string;
   sharedYRange: [number, number] | null;
   testId: string;
 }
 
 export function PatchSeriesChart({
-  title,
   dates,
-  values,
+  validationValues,
+  originalValues,
   units,
-  color,
   sharedYRange,
   testId,
 }: PatchSeriesChartProps) {
@@ -27,9 +25,10 @@ export function PatchSeriesChart({
 
   const alignedData = useMemo(() => {
     const timestamps = dates.map((date) => new Date(date).getTime() / 1000);
-    const cleanedValues = values.map((value) => (Number.isFinite(value) ? value : null));
-    return [timestamps, cleanedValues] as uPlot.AlignedData;
-  }, [dates, values]);
+    const cleanedValidationValues = validationValues.map((value) => (Number.isFinite(value) ? value : null));
+    const cleanedOriginalValues = originalValues.map((value) => (Number.isFinite(value) ? value : null));
+    return [timestamps, cleanedValidationValues, cleanedOriginalValues] as uPlot.AlignedData;
+  }, [dates, originalValues, validationValues]);
 
   useEffect(() => {
     const node = hostRef.current;
@@ -63,7 +62,11 @@ export function PatchSeriesChart({
           height: 250,
           padding: [18, 14, 24, 10],
           tzDate: (timestamp) => new Date(timestamp * 1000),
-          series: [{}, { label: title, stroke: color, width: 2.2 }],
+          series: [
+            {},
+            { label: "Validation", stroke: "#0f4c5c", width: 2.2 },
+            { label: "Original", stroke: "#c37211", width: 2.2 },
+          ],
           scales: {
             x: { time: true },
             y: {
@@ -87,7 +90,7 @@ export function PatchSeriesChart({
               label: units || "unitless",
             },
           ],
-          legend: { show: false },
+          legend: { show: true },
         },
         alignedData,
         node,
@@ -99,12 +102,12 @@ export function PatchSeriesChart({
       setChartError("Impossibile renderizzare il grafico patch.");
       node.innerHTML = "";
     }
-  }, [alignedData, color, sharedYRange, title, units, width]);
+  }, [alignedData, sharedYRange, units, width]);
 
   return (
     <div className="patch-series-card">
       <div className="fault-compare-head">
-        <h4>{title}</h4>
+        <h4>Validation vs Original</h4>
         <span className="pill-muted">{units || "unitless"}</span>
       </div>
       {chartError ? (

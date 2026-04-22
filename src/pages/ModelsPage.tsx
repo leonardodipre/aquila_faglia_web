@@ -1150,26 +1150,14 @@ export function ModelsPage() {
         {seriesRequested && seriesLoadError ? <p className="panel-note">{seriesLoadError}</p> : null}
 
         {seriesRequested && !seriesLoading && !seriesLoadError ? (
-          <div className="compare-series-grid">
-            <PatchSeriesChart
-              title="Validation"
-              dates={sharedSnapshots.map((snapshot) => snapshot.date)}
-              values={validationPatchSeries}
-              sharedYRange={sharedTimeSeriesRange}
-              units={sharedFieldMeta?.units ?? "unitless"}
-              color="#0f4c5c"
-              testId="validation-timeseries-chart"
-            />
-            <PatchSeriesChart
-              title="Original"
-              dates={sharedSnapshots.map((snapshot) => snapshot.date)}
-              values={originalPatchSeries}
-              sharedYRange={sharedTimeSeriesRange}
-              units={sharedFieldMeta?.units ?? "unitless"}
-              color="#c37211"
-              testId="original-timeseries-chart"
-            />
-          </div>
+          <PatchSeriesChart
+            dates={sharedSnapshots.map((snapshot) => snapshot.date)}
+            validationValues={validationPatchSeries}
+            originalValues={originalPatchSeries}
+            sharedYRange={sharedTimeSeriesRange}
+            units={sharedFieldMeta?.units ?? "unitless"}
+            testId="compare-timeseries-chart"
+          />
         ) : null}
 
         <div className="compare-series-meta">

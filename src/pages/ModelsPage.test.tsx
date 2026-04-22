@@ -421,7 +421,7 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("validation-model-key")).toHaveTextContent(modelKeys.v2ValidationFinal);
     });
 
-    expect(screen.queryByTestId("validation-timeseries-chart")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("compare-timeseries-chart")).not.toBeInTheDocument();
 
     const originalCanvas = await screen.findByTestId("original-fault-canvas");
     const originalPolygons = originalCanvas.querySelectorAll("polygon");
@@ -430,7 +430,7 @@ describe("ModelsPage compare", () => {
     await waitFor(() => {
       expect(screen.getByTestId("original-selected-patch-id")).toHaveTextContent("0");
       expect(screen.getByTestId("validation-selected-patch-id")).toHaveTextContent("0");
-      expect(screen.getByTestId("validation-timeseries-chart")).toBeInTheDocument();
+      expect(screen.getByTestId("compare-timeseries-chart")).toBeInTheDocument();
       expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.2|1.5");
     });
 
