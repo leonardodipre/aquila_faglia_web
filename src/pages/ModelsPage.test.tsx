@@ -1,6 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { computePatchMappings, ModelsPage } from "./ModelsPage";
+import {
+  computePatchMappings,
+  computeSpearmanCorrelation,
+  computeWindowPatchIds,
+  ModelsPage,
+} from "./ModelsPage";
 
 const base = "/aquila_faglia_web";
 
@@ -303,6 +308,18 @@ describe("ModelsPage compare", () => {
     expect(mappings?.validationToOriginal.get(1)).toBe(1);
   });
 
+  it("builds window ids around a selected patch", () => {
+    const geometry = makeGeometry(30, [25, 30]);
+    expect(computeWindowPatchIds(geometry, 0, 1)).toEqual([0]);
+    expect(computeWindowPatchIds(geometry, 0, 3)).toEqual([0, 1]);
+  });
+
+  it("computes spearman correlation from paired finite values", () => {
+    expect(computeSpearmanCorrelation([1, 2, 3], [4, 5, 6])).toBeCloseTo(1);
+    expect(computeSpearmanCorrelation([1, 2, 3], [6, 5, 4])).toBeCloseTo(-1);
+    expect(computeSpearmanCorrelation([1], [2])).toBeNull();
+  });
+
   beforeEach(() => {
     global.fetch = vi.fn((input: RequestInfo | URL) => {
       const url = String(input);
@@ -432,6 +449,16 @@ describe("ModelsPage compare", () => {
       expect(screen.getByTestId("validation-selected-patch-id")).toHaveTextContent("0");
       expect(screen.getByTestId("compare-timeseries-chart")).toBeInTheDocument();
       expect(screen.getByTestId("timeseries-shared-y-range")).toHaveTextContent("0.5|1.7");
+      expect(screen.getByTestId("timeseries-window-size")).toHaveTextContent("1x1");
+      expect(screen.getByTestId("timeseries-aggregation-mode")).toHaveTextContent("Media");
+      expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("1");
+    });
+
+    fireEvent.change(screen.getByLabelText("Finestra area"), { target: { value: "3" } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("timeseries-window-size")).toHaveTextContent("3x3");
+      expect(screen.getByTestId("timeseries-spearman-rho")).toHaveTextContent("1");
     });
 
     expect(global.fetch).toHaveBeenCalledWith(

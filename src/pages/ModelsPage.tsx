@@ -126,6 +126,7 @@ interface FaultPlotProps {
   lengthOffsetKm: number;
   hoveredPatchId: number | null;
   selectedPatchId: number | null;
+  selectedPatchIds: Set<number>;
   onHoverPatch: (patchId: number | null) => void;
   onSelectPatch: (patchId: number | null) => void;
   testId: string;
@@ -135,6 +136,16 @@ interface PatchMappings {
   originalToValidation: Map<number, number>;
   validationToOriginal: Map<number, number>;
 }
+
+type AggregationMode = "mean" | "median" | "max_abs";
+
+const WINDOW_OPTIONS = [1, 3, 5, 7, 9] as const;
+
+const AGGREGATION_OPTIONS: Array<{ key: AggregationMode; label: string }> = [
+  { key: "mean", label: "Media" },
+  { key: "median", label: "Mediana" },
+  { key: "max_abs", label: "Max |valore|" },
+];
 
 function normalizeLabel(label: string) {
   return label.trim().replace(/\s+/g, " ").toLowerCase();
@@ -364,6 +375,134 @@ export function computePatchMappings(
   return { originalToValidation, validationToOriginal };
 }
 
+export function computeWindowPatchIds(
+  geometry: ValidationGeometryData | null,
+  centerPatchId: number | null,
+  windowSize: number,
+) {
+  if (!geometry || centerPatchId == null) {
+    return [] as number[];
+  }
+
+  const centerPatch = geometry.patches.find((patch) => patch.id === centerPatchId);
+  if (!centerPatch) {
+    return [] as number[];
+  }
+
+  const radius = Math.max(Math.floor(windowSize / 2), 0);
+  return geometry.patches
+    .filter(
+      (patch) =>
+        Math.abs(patch.row - centerPatch.row) <= radius &&
+        Math.abs(patch.col - centerPatch.col) <= radius,
+    )
+    .map((patch) => patch.id);
+}
+
+function aggregatePatchAreaValue(
+  fieldValues: number[],
+  patchIds: number[],
+  mode: AggregationMode,
+) {
+  const finiteValues = patchIds
+    .map((patchId) => fieldValues[patchId])
+    .filter((value) => Number.isFinite(value));
+
+  if (finiteValues.length === 0) {
+    return Number.NaN;
+  }
+
+  if (mode === "median") {
+    const sortedValues = [...finiteValues].sort((left, right) => left - right);
+    const middle = Math.floor(sortedValues.length / 2);
+    if (sortedValues.length % 2 === 0) {
+      return (sortedValues[middle - 1] + sortedValues[middle]) / 2;
+    }
+    return sortedValues[middle];
+  }
+
+  if (mode === "max_abs") {
+    let strongest = finiteValues[0];
+    for (const value of finiteValues) {
+      if (Math.abs(value) > Math.abs(strongest)) {
+        strongest = value;
+      }
+    }
+    return strongest;
+  }
+
+  const sum = finiteValues.reduce((accumulator, value) => accumulator + value, 0);
+  return sum / finiteValues.length;
+}
+
+function rankValues(values: number[]) {
+  const sorted = values
+    .map((value, index) => ({ value, index }))
+    .sort((left, right) => left.value - right.value);
+
+  const ranks = new Array<number>(values.length);
+  let cursor = 0;
+  while (cursor < sorted.length) {
+    let end = cursor;
+    while (end + 1 < sorted.length && sorted[end + 1].value === sorted[cursor].value) {
+      end += 1;
+    }
+    const averageRank = (cursor + end + 2) / 2;
+    for (let rankIndex = cursor; rankIndex <= end; rankIndex += 1) {
+      ranks[sorted[rankIndex].index] = averageRank;
+    }
+    cursor = end + 1;
+  }
+  return ranks;
+}
+
+export function computeSpearmanCorrelation(
+  validationSeries: number[],
+  originalSeries: number[],
+) {
+  const pairCount = Math.min(validationSeries.length, originalSeries.length);
+  const finitePairs: Array<[number, number]> = [];
+
+  for (let pairIndex = 0; pairIndex < pairCount; pairIndex += 1) {
+    const validationValue = validationSeries[pairIndex];
+    const originalValue = originalSeries[pairIndex];
+    if (Number.isFinite(validationValue) && Number.isFinite(originalValue)) {
+      finitePairs.push([validationValue, originalValue]);
+    }
+  }
+
+  if (finitePairs.length < 2) {
+    return null;
+  }
+
+  const validationRanks = rankValues(finitePairs.map((pair) => pair[0]));
+  const originalRanks = rankValues(finitePairs.map((pair) => pair[1]));
+
+  const validationMean =
+    validationRanks.reduce((accumulator, value) => accumulator + value, 0) / validationRanks.length;
+  const originalMean =
+    originalRanks.reduce((accumulator, value) => accumulator + value, 0) / originalRanks.length;
+
+  let covariance = 0;
+  let validationVariance = 0;
+  let originalVariance = 0;
+
+  for (let index = 0; index < validationRanks.length; index += 1) {
+    const validationDelta = validationRanks[index] - validationMean;
+    const originalDelta = originalRanks[index] - originalMean;
+    covariance += validationDelta * originalDelta;
+    validationVariance += validationDelta * validationDelta;
+    originalVariance += originalDelta * originalDelta;
+  }
+
+  const denominator = Math.sqrt(validationVariance * originalVariance);
+  if (denominator <= 1e-12) {
+    return null;
+  }
+
+  return Math.max(-1, Math.min(1, covariance / denominator));
+}
+
 function resolvePatch(
   geometry: ValidationGeometryData | null,
   selectedPatchId: number | null,
@@ -388,6 +527,7 @@ function FaultPlot({
   lengthOffsetKm,
   hoveredPatchId,
   selectedPatchId,
+  selectedPatchIds,
   onHoverPatch,
   onSelectPatch,
   testId,
@@ -456,7 +596,10 @@ function FaultPlot({
               .map(([lengthKm, depthKm]) => `${xScale(lengthKm + lengthOffsetKm)},${depthScale(depthKm)}`)
               .join(" ");
             const patchValue = values[patch.id] ?? Number.NaN;
-            const active = patch.id === hoveredPatchId || patch.id === selectedPatchId;
+            const active =
+              patch.id === hoveredPatchId ||
+              patch.id === selectedPatchId ||
+              selectedPatchIds.has(patch.id);
             return (
               <polygon
                 key={patch.id}
@@ -537,6 +680,8 @@ export function ModelsPage() {
 
   const [selectedFieldKey, setSelectedFieldKey] = useState("");
   const [selectedSnapshotKey, setSelectedSnapshotKey] = useState("");
+  const [selectedWindowSize, setSelectedWindowSize] = useState<number>(1);
+  const [selectedAggregationMode, setSelectedAggregationMode] = useState<AggregationMode>("mean");
 
   const [hoveredValidationPatchId, setHoveredValidationPatchId] = useState<number | null>(null);
   const [selectedValidationPatchId, setSelectedValidationPatchId] = useState<number | null>(null);
@@ -820,6 +965,36 @@ export function ModelsPage() {
   const originalPatchValue =
     originalPatch && originalPatch.id < originalValues.length ? originalValues[originalPatch.id] : null;
 
+  const validationWindowPatchIds = useMemo(
+    () => computeWindowPatchIds(validationGeometry, selectedValidationPatchId, selectedWindowSize),
+    [selectedValidationPatchId, selectedWindowSize, validationGeometry],
+  );
+
+  const originalWindowPatchIds = useMemo(
+    () => computeWindowPatchIds(originalGeometry, selectedOriginalPatchId, selectedWindowSize),
+    [originalGeometry, selectedOriginalPatchId, selectedWindowSize],
+  );
+
+  const validationSelectedPatchSet = useMemo(
+    () => new Set(validationWindowPatchIds),
+    [validationWindowPatchIds],
+  );
+
+  const originalSelectedPatchSet = useMemo(
+    () => new Set(originalWindowPatchIds),
+    [originalWindowPatchIds],
+  );
+
+  const validationWindowValue = useMemo(() => {
+    const value = aggregatePatchAreaValue(validationValues, validationWindowPatchIds, selectedAggregationMode);
+    return Number.isFinite(value) ? value : null;
+  }, [selectedAggregationMode, validationValues, validationWindowPatchIds]);
+
+  const originalWindowValue = useMemo(() => {
+    const value = aggregatePatchAreaValue(originalValues, originalWindowPatchIds, selectedAggregationMode);
+    return Number.isFinite(value) ? value : null;
+  }, [originalValues, originalWindowPatchIds, selectedAggregationMode]);
+
   useEffect(() => {
     if (!seriesRequested || !selectedPair || sharedSnapshots.length === 0) {
       return;
@@ -888,32 +1063,48 @@ export function ModelsPage() {
   }, [selectedPair, sharedSnapshots, seriesRequested]);
 
   const validationPatchSeries = useMemo(() => {
-    if (!selectedPair || selectedValidationPatchId == null || !selectedFieldKey) {
+    if (!selectedPair || validationWindowPatchIds.length === 0 || !selectedFieldKey) {
       return [] as number[];
     }
     const modelCache = snapshotSeriesCacheRef.current.get(selectedPair.validationKey);
     return sharedSnapshots.map((snapshot) => {
       const snapshotData = modelCache?.get(snapshot.date_key);
       const fieldValues = snapshotData?.fields[selectedFieldKey];
-      return fieldValues && selectedValidationPatchId < fieldValues.length
-        ? fieldValues[selectedValidationPatchId]
-        : Number.NaN;
+      if (!fieldValues) {
+        return Number.NaN;
+      }
+      return aggregatePatchAreaValue(fieldValues, validationWindowPatchIds, selectedAggregationMode);
     });
-  }, [selectedPair, selectedValidationPatchId, selectedFieldKey, sharedSnapshots, seriesCacheVersion]);
+  }, [
+    selectedAggregationMode,
+    selectedFieldKey,
+    selectedPair,
+    sharedSnapshots,
+    seriesCacheVersion,
+    validationWindowPatchIds,
+  ]);
 
   const originalPatchSeries = useMemo(() => {
-    if (!selectedPair || selectedOriginalPatchId == null || !selectedFieldKey) {
+    if (!selectedPair || originalWindowPatchIds.length === 0 || !selectedFieldKey) {
       return [] as number[];
     }
     const modelCache = snapshotSeriesCacheRef.current.get(selectedPair.originalKey);
     return sharedSnapshots.map((snapshot) => {
       const snapshotData = modelCache?.get(snapshot.date_key);
       const fieldValues = snapshotData?.fields[selectedFieldKey];
-      return fieldValues && selectedOriginalPatchId < fieldValues.length
-        ? fieldValues[selectedOriginalPatchId]
-        : Number.NaN;
+      if (!fieldValues) {
+        return Number.NaN;
+      }
+      return aggregatePatchAreaValue(fieldValues, originalWindowPatchIds, selectedAggregationMode);
     });
-  }, [selectedPair, selectedOriginalPatchId, selectedFieldKey, sharedSnapshots, seriesCacheVersion]);
+  }, [
+    originalWindowPatchIds,
+    selectedAggregationMode,
+    selectedFieldKey,
+    selectedPair,
+    sharedSnapshots,
+    seriesCacheVersion,
+  ]);
 
   const sharedTimeSeriesRange = useMemo(() => {
     const finiteValues = [...validationPatchSeries, ...originalPatchSeries].filter((value) =>
@@ -950,8 +1141,14 @@ export function ModelsPage() {
   }, [sharedFieldMeta]);
 
   const timeSeriesYRange = plotLegendRange ?? sharedTimeSeriesRange;
+  const spearmanRho = useMemo(
+    () => computeSpearmanCorrelation(validationPatchSeries, originalPatchSeries),
+    [originalPatchSeries, validationPatchSeries],
+  );
 
   const controlsDisabled = !catalog || !validationIndex || !originalIndex || !selectedPair;
+  const aggregationLabel =
+    AGGREGATION_OPTIONS.find((option) => option.key === selectedAggregationMode)?.label ?? selectedAggregationMode;
 
   return (
     <section className="page-grid models-grid compare-grid">
@@ -1081,6 +1278,38 @@ export function ModelsPage() {
           </span>
         </label>
 
+        <label className="field-group">
+          <span>Finestra area</span>
+          <select
+            className="select-input"
+            value={selectedWindowSize}
+            onChange={(event) => setSelectedWindowSize(Number(event.target.value))}
+            aria-label="Finestra area"
+          >
+            {WINDOW_OPTIONS.map((windowSize) => (
+              <option key={windowSize} value={windowSize}>
+                {windowSize}x{windowSize}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="field-group">
+          <span>Aggregazione area</span>
+          <select
+            className="select-input"
+            value={selectedAggregationMode}
+            onChange={(event) => setSelectedAggregationMode(event.target.value as AggregationMode)}
+            aria-label="Aggregazione area"
+          >
+            {AGGREGATION_OPTIONS.map((option) => (
+              <option key={option.key} value={option.key}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <div className="detail-stack">
           <div className="detail-card">
             <span className="meta-label">Model key Validation</span>
@@ -1130,6 +1359,7 @@ export function ModelsPage() {
             lengthOffsetKm={0}
             hoveredPatchId={hoveredValidationPatchId}
             selectedPatchId={selectedValidationPatchId}
+            selectedPatchIds={validationSelectedPatchSet}
             onHoverPatch={setHoveredValidationPatchId}
             onSelectPatch={handleSelectValidationPatch}
             testId="validation-fault-canvas"
@@ -1144,6 +1374,7 @@ export function ModelsPage() {
             lengthOffsetKm={originalOffsetKm}
             hoveredPatchId={hoveredOriginalPatchId}
             selectedPatchId={selectedOriginalPatchId}
+            selectedPatchIds={originalSelectedPatchSet}
             onHoverPatch={setHoveredOriginalPatchId}
             onSelectPatch={handleSelectOriginalPatch}
             testId="original-fault-canvas"
@@ -1155,7 +1386,7 @@ export function ModelsPage() {
         <div className="panel-header">
           <div>
             <p className="eyebrow">Serie patch</p>
-            <h3>Valore patch su tutti gli snapshot condivisi</h3>
+            <h3>Valore area su tutti gli snapshot condivisi</h3>
           </div>
           <span className="pill-muted">
             {selectedFieldKey || "n/a"}
@@ -1180,10 +1411,28 @@ export function ModelsPage() {
         ) : null}
 
         <div className="compare-series-meta">
-          <span className="meta-label">Y min|max (field legend)</span>
-          <strong data-testid="timeseries-shared-y-range">
-            {timeSeriesYRange ? `${timeSeriesYRange[0]}|${timeSeriesYRange[1]}` : "n/a"}
-          </strong>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Y min|max (field legend)</span>
+            <strong data-testid="timeseries-shared-y-range">
+              {timeSeriesYRange ? `${timeSeriesYRange[0]}|${timeSeriesYRange[1]}` : "n/a"}
+            </strong>
+          </div>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Window</span>
+            <strong data-testid="timeseries-window-size">
+              {selectedWindowSize}x{selectedWindowSize}
+            </strong>
+          </div>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Aggregazione</span>
+            <strong data-testid="timeseries-aggregation-mode">{aggregationLabel}</strong>
+          </div>
+          <div className="compare-series-meta-item">
+            <span className="meta-label">Spearman rho</span>
+            <strong data-testid="timeseries-spearman-rho">
+              {spearmanRho != null ? formatCompactNumber(spearmanRho, 4) : "n/a"}
+            </strong>
+          </div>
         </div>
       </section>
 
@@ -1219,6 +1468,16 @@ export function ModelsPage() {
                   <span className="meta-label">Units</span>
                   <strong>{sharedFieldMeta.units || "unitless"}</strong>
                 </div>
+                <div>
+                  <span className="meta-label">Window value</span>
+                  <strong>
+                    {validationWindowValue != null ? formatScientific(validationWindowValue) : "n/a"}
+                  </strong>
+                </div>
+                <div>
+                  <span className="meta-label">Patch in area</span>
+                  <strong>{validationWindowPatchIds.length}</strong>
+                </div>
               </div>
             ) : (
               <p className="panel-note">Hover o click su una patch del pannello Validation.</p>
@@ -1246,6 +1505,14 @@ export function ModelsPage() {
                 <div>
                   <span className="meta-label">Units</span>
                   <strong>{sharedFieldMeta.units || "unitless"}</strong>
+                </div>
+                <div>
+                  <span className="meta-label">Window value</span>
+                  <strong>{originalWindowValue != null ? formatScientific(originalWindowValue) : "n/a"}</strong>
+                </div>
+                <div>
+                  <span className="meta-label">Patch in area</span>
+                  <strong>{originalWindowPatchIds.length}</strong>
                 </div>
               </div>
             ) : (
